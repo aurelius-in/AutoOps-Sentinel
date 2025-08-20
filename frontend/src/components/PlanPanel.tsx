@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE } from '../modules/api';
+import { API_BASE, getAuthHeaders } from '../modules/api';
 
 type PlanStep = { description: string; action?: string; params?: Record<string, any> };
 
@@ -26,7 +26,7 @@ const PlanPanel: React.FC = () => {
   const execute = async (step: PlanStep) => {
     if (!step.action) return;
     await fetch(`${API_BASE}/actions/execute`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ name: step.action, params: step.params || {} })
     });
   };
@@ -34,7 +34,7 @@ const PlanPanel: React.FC = () => {
   const executeAll = async () => {
     if (steps.length === 0) return;
     await fetch(`${API_BASE}/agent/execute_plan`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ steps })
     });
   };
