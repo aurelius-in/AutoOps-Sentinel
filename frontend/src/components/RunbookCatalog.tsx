@@ -1,19 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { API_BASE } from '../modules/api';
 
 const RunbookCatalog: React.FC = () => {
-  const runbooks = [
-    { name: 'restart_service', desc: 'Restart a systemd service' },
-    { name: 'rollout_undo', desc: 'Rollback last deployment' },
-    { name: 'scale_deployment', desc: 'Scale K8s deployment' },
-    { name: 'quarantine_host', desc: 'Isolate a compromised host' },
-  ];
+  const [runbooks, setRunbooks] = useState<any[]>([]);
+  useEffect(() => {
+    const load = async () => {
+      const res = await fetch(`${API_BASE}/runbooks`);
+      setRunbooks(await res.json());
+    };
+    load();
+  }, []);
   return (
     <div style={{ marginTop: 16 }}>
       <h3>Runbook Catalog</h3>
       <ul>
         {runbooks.map((r) => (
           <li key={r.name}>
-            <b>{r.name}</b>: {r.desc}
+            <b>{r.name}</b> <small>({r.path})</small>
           </li>
         ))}
       </ul>

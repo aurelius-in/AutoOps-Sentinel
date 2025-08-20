@@ -23,8 +23,9 @@ from ..common.schemas import (
 )
 from ..common.config import settings
 from ..detector.detector import run_detection_cycle
-from ..remediator.executor import execute_runbook
+from ..remediator.executor import execute_runbook, list_runbooks
 from ..agent.service import AgentService
+from ..policy.engine import evaluate_policies
 
 
 app = FastAPI(title=settings.app_name)
@@ -67,6 +68,11 @@ def summary(db: Session = Depends(get_db_session)) -> dict:
     actions = db.query(models.Action).count()
     incidents = db.query(models.Incident).count()
     return {"anomalies": anomalies, "actions": actions, "incidents": incidents}
+
+
+@app.get("/policies/suggest")
+def policy_suggestions(db: Session = Depends(get_db_session)) -> list[dict]:
+    return evaluate_policies(db)
 
 
 @app.post("/metrics")
@@ -145,6 +151,11 @@ def list_actions(db: Session = Depends(get_db_session)) -> list[dict]:
         }
         for r in rows
     ]
+
+
+@app.get("/runbooks")
+def get_runbooks() -> list[dict]:
+    return list_runbooks()
 
 
 @app.post("/agent/query", response_model=AgentQueryOut)
