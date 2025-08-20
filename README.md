@@ -46,3 +46,8 @@ docker compose -f deploy/docker-compose.yml up --build -d
 Then open `http://localhost:5173`.
 
 More details: see `docs/deployment.md`.
+
+## Docs
+- Deployment: `docs/deployment.md`
+- Wow Demo Runbook: `docs/wow-demo-runbook.md`
+- Use cases: `docs/usecases.md`
