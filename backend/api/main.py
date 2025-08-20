@@ -484,7 +484,7 @@ def runbook_preview(payload: dict) -> dict:
 
 
 @app.get("/slo")
-def slo(db: Session = Depends(get_db_session)) -> dict:
+def slo(target: float = 99.9, db: Session = Depends(get_db_session)) -> dict:
     from statistics import mean
 
     # naive availability from recent error_rate (%), and p95 latency
@@ -512,7 +512,12 @@ def slo(db: Session = Depends(get_db_session)) -> dict:
         s = sorted(latencies)
         idx = int(0.95 * (len(s) - 1))
         p95 = s[idx]
-    return {"availability_pct": availability, "latency_p95_ms": p95}
+    allowed_error = max(0.0, 100.0 - float(target))
+    actual_error = max(0.0, 100.0 - availability)
+    ebr = None
+    if allowed_error > 0:
+        ebr = max(0.0, (allowed_error - actual_error) / allowed_error * 100.0)
+    return {"availability_pct": availability, "latency_p95_ms": p95, "target_slo_pct": float(target), "error_budget_remaining_pct": ebr}
 
 
 @app.get("/incidents")

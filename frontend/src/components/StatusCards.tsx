@@ -13,7 +13,7 @@ const Card: React.FC<CardProps> = ({ title, value }) => (
 const StatusCards: React.FC = () => {
   const [summary, setSummary] = useState<{anomalies:number; actions:number; incidents:number} | null>(null);
   const [biz, setBiz] = useState<{downtime_avoided_min:number; cost_avoided:number} | null>(null);
-  const [slo, setSlo] = useState<{availability_pct:number; latency_p95_ms:number|null} | null>(null);
+  const [slo, setSlo] = useState<{availability_pct:number; latency_p95_ms:number|null; error_budget_remaining_pct?: number} | null>(null);
   useEffect(() => {
     const load = async () => {
       try {
@@ -36,6 +36,7 @@ const StatusCards: React.FC = () => {
       <Card title="Incidents" value={String(summary?.incidents ?? 0)} />
       <Card title="Avail" value={`${(slo?.availability_pct ?? 100).toFixed(1)}%`} />
       <Card title="p95" value={`${slo?.latency_p95_ms ?? '-'} ms`} />
+      <Card title="EBR" value={`${slo?.error_budget_remaining_pct?.toFixed?.(1) ?? '-'}%`} />
       <Card title="Cost Avoided" value={`$${(biz?.cost_avoided ?? 0).toLocaleString()}`} />
     </div>
   );
