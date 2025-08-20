@@ -56,6 +56,19 @@ async def on_startup() -> None:
     asyncio.create_task(detector_loop())
 
 
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok", "time": datetime.utcnow().isoformat()}
+
+
+@app.get("/summary")
+def summary(db: Session = Depends(get_db_session)) -> dict:
+    anomalies = db.query(models.Anomaly).count()
+    actions = db.query(models.Action).count()
+    incidents = db.query(models.Incident).count()
+    return {"anomalies": anomalies, "actions": actions, "incidents": incidents}
+
+
 @app.post("/metrics")
 def ingest_metric(metric: MetricIn, db: Session = Depends(get_db_session)) -> dict:
     event = models.Event(
