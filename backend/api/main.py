@@ -35,6 +35,7 @@ from ..policy.engine import evaluate_policies, load_rules
 from ..common.ops import mitigate_incidents_for_action
 from .security import require_admin_token
 from ..common.logging import configure_root_logger
+from ..common.metrics_store import write_metric_influx
 
 
 app = FastAPI(title=settings.app_name)
@@ -374,6 +375,11 @@ def ingest_metric(metric: MetricIn, db: Session = Depends(get_db_session)) -> di
     )
     db.add(event)
     db.commit()
+    # optionally write to InfluxDB
+    try:
+        write_metric_influx(metric.metric, float(metric.value), {k: str(v) for k, v in (metric.tags or {}).items()}, metric.timestamp)
+    except Exception:
+        pass
     return {"status": "ok"}
 
 

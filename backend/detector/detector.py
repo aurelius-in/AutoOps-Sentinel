@@ -13,6 +13,7 @@ from ..common import models
 from ..common.ops import create_incident_if_needed
 from ..common.notify import send_webhook
 from .algorithms import rolling_zscore, isolation_forest_score, mad_anomaly_score
+from ..common.metrics_store import query_recent_metrics_influx
 
 
 def _load_recent_metrics(db: Session, minutes: int = 15) -> Dict[str, List[Tuple[datetime, float]]]:
@@ -61,7 +62,7 @@ async def run_detection_cycle() -> None:
     # run sync detection in a thread if needed; it's quick enough inline for demo
     db: Session = SessionLocal()
     try:
-        series = _load_recent_metrics(db)
+        series = query_recent_metrics_influx() or _load_recent_metrics(db)
         for metric, points in series.items():
             values = [v for _, v in points]
             score = _detect_score(values)
