@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: autoops
+      POSTGRES_PASSWORD: autoops
+      POSTGRES_DB: autoops
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/python.Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg2://autoops:autoops@db:5432/autoops
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    command: uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  db_data: {}
+
+

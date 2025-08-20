@@ -1,0 +1,5 @@
+name: restart_service
+steps:
+  - run: "echo restarting {service}"
+  - verify: "echo health check for {service}"
+
