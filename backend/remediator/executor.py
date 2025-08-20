@@ -53,6 +53,21 @@ def _safe_shell(cmd: str) -> tuple[int, str]:
         return 1, f"error executing '{cmd}': {exc}"
 
 
+def preview_runbook(name: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    params = params or {}
+    runbook = _load_runbook(name)
+    steps: List[Dict[str, Any]] = runbook.get("steps", [])
+    rendered: List[str] = []
+    for step in steps:
+        if "run" in step:
+            rendered.append(str(step["run"]).format(**params))
+        elif "verify" in step:
+            rendered.append(str(step["verify"]).format(**params))
+        else:
+            rendered.append("<unknown step>")
+    return {"name": name, "commands": rendered}
+
+
 def execute_runbook(name: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
     params = params or {}
     try:
