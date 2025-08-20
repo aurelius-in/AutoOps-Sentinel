@@ -5,6 +5,7 @@ import Timeline from './components/Timeline';
 import Forecast from './components/Forecast';
 import RunbookCatalog from './components/RunbookCatalog';
 import ChatAgent from './components/ChatAgent';
+import SimulatePanel from './components/SimulatePanel';
 
 const API = '/api';
 
@@ -53,6 +54,9 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <ChatAgent />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <SimulatePanel />
             </Paper>
           </Grid>
         </Grid>
