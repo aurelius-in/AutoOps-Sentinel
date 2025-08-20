@@ -7,6 +7,7 @@ import RunbookCatalog from './components/RunbookCatalog';
 import ChatAgent from './components/ChatAgent';
 import SimulatePanel from './components/SimulatePanel';
 import ReportButton from './components/ReportButton';
+import Policies from './components/Policies';
 
 const API = '/api';
 
@@ -59,6 +60,9 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <SimulatePanel />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <Policies />
             </Paper>
           </Grid>
         </Grid>
