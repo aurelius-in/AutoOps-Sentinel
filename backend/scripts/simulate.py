@@ -40,17 +40,26 @@ def simulate_login_attack(api: str) -> None:
         time.sleep(0.5)
 
 
+def simulate_latency_spike(api: str) -> None:
+    for i in range(30):
+        value = (120 if i < 10 else 650) + random.random() * 30
+        send_metric(api, "sim", "latency", value)
+        time.sleep(0.5)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="AutoOps Sentinel simulators")
-    parser.add_argument("mode", choices=["cpu-spike", "error-storm", "login-attack"]) 
+    parser.add_argument("mode", choices=["cpu-spike", "error-storm", "login-attack", "latency-spike"]) 
     parser.add_argument("--api", default="http://localhost:8000")
     args = parser.parse_args()
     if args.mode == "cpu-spike":
         simulate_cpu_spike(args.api)
     elif args.mode == "error-storm":
         simulate_error_storm(args.api)
-    else:
+    elif args.mode == "login-attack":
         simulate_login_attack(args.api)
+    else:
+        simulate_latency_spike(args.api)
 
 
 if __name__ == "__main__":
