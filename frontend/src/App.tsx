@@ -12,6 +12,7 @@ import PlanPanel from './components/PlanPanel';
 import Narrative from './components/Narrative';
 import MetricsChart from './components/MetricsChart';
 import AnomalyStats from './components/AnomalyStats';
+import BusinessTicker from './components/BusinessTicker';
 
 const API = '/api';
 
@@ -44,6 +45,7 @@ const App: React.FC = () => {
         <input defaultValue={typeof window !== 'undefined' ? localStorage.getItem('API_TOKEN') || '' : ''} onChange={(e) => localStorage.setItem('API_TOKEN', e.target.value)} placeholder="optional" />
       </div>
       <ReportButton />
+      <BusinessTicker />
       <StatusCards />
       <Box sx={{ my: 2 }}>
         <Grid container spacing={2}>
