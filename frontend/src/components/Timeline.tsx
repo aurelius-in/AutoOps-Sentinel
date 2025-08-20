@@ -29,6 +29,11 @@ const Timeline: React.FC = () => {
   return (
     <div style={{ marginTop: 16 }}>
       <h3>Timeline</h3>
+      <div style={{ marginBottom: 8 }}>
+        <a href={`${API_BASE}/export/anomalies.csv`} target="_blank" rel="noreferrer">Download anomalies CSV</a>
+        <span> · </span>
+        <a href={`${API_BASE}/export/actions.csv`} target="_blank" rel="noreferrer">Download actions CSV</a>
+      </div>
       <ul>
         {items.length === 0 ? <li>No events yet.</li> : items.map((i) => (
           <li key={`${i.type}-${i.id}`}>[{new Date(i.when).toLocaleTimeString()}] {i.type.toUpperCase()}: {i.title}</li>

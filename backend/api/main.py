@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI
 import asyncio
 import random
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 
 from ..common.db import Base, engine, get_db_session, SessionLocal
@@ -307,6 +307,36 @@ def list_actions(db: Session = Depends(get_db_session)) -> list[dict]:
         }
         for r in rows
     ]
+
+
+@app.get("/export/anomalies.csv")
+def export_anomalies_csv(db: Session = Depends(get_db_session)) -> PlainTextResponse:
+    rows = (
+        db.query(models.Anomaly)
+        .order_by(models.Anomaly.created_at.desc())
+        .limit(1000)
+        .all()
+    )
+    lines = ["id,metric,score,severity,created_at"]
+    for r in rows:
+        lines.append(f"{r.id},{r.metric},{r.score},{r.severity},{r.created_at.isoformat()}")
+    csv = "\n".join(lines)
+    return PlainTextResponse(content=csv, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=anomalies.csv"})
+
+
+@app.get("/export/actions.csv")
+def export_actions_csv(db: Session = Depends(get_db_session)) -> PlainTextResponse:
+    rows = (
+        db.query(models.Action)
+        .order_by(models.Action.created_at.desc())
+        .limit(1000)
+        .all()
+    )
+    lines = ["id,name,success,created_at"]
+    for r in rows:
+        lines.append(f"{r.id},{r.name},{int(bool(r.success))},{r.created_at.isoformat()}")
+    csv = "\n".join(lines)
+    return PlainTextResponse(content=csv, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=actions.csv"})
 
 
 @app.get("/runbooks")
