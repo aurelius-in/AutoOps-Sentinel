@@ -32,6 +32,7 @@ from ..agent.service import AgentService
 from ..policy.engine import evaluate_policies, load_rules
 from ..common.ops import mitigate_incidents_for_action
 from .security import require_admin_token
+from ..common.logging import configure_root_logger
 
 
 app = FastAPI(title=settings.app_name)
@@ -48,6 +49,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def on_startup() -> None:
     # Create tables for demo; in production use Alembic migrations
+    configure_root_logger()
     Base.metadata.create_all(bind=engine)
 
     async def detector_loop():
@@ -74,6 +76,15 @@ def summary(db: Session = Depends(get_db_session)) -> dict:
     actions = db.query(models.Action).count()
     incidents = db.query(models.Incident).count()
     return {"anomalies": anomalies, "actions": actions, "incidents": incidents}
+
+
+@app.get("/version")
+def version() -> dict:
+    return {
+        "app": settings.app_name,
+        "env": settings.env,
+        "model": settings.model_name,
+    }
 
 
 @app.get("/policies/suggest")
