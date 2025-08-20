@@ -13,6 +13,8 @@ import Narrative from './components/Narrative';
 import MetricsChart from './components/MetricsChart';
 import AnomalyStats from './components/AnomalyStats';
 import BusinessTicker from './components/BusinessTicker';
+import AnomaliesTable from './components/AnomaliesTable';
+import ActionsTable from './components/ActionsTable';
 
 const API = '/api';
 
@@ -65,6 +67,12 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <AnomalyStats />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <AnomaliesTable />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <ActionsTable />
             </Paper>
           </Grid>
           <Grid item xs={12} md={4}>
