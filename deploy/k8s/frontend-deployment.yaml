@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autoops-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autoops-frontend
+  template:
+    metadata:
+      labels:
+        app: autoops-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/example/autoops-frontend:latest
+          env:
+            - name: VITE_API
+              value: http://autoops-api:8000
+          ports:
+            - containerPort: 5173
+
