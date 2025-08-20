@@ -23,6 +23,8 @@ from ..common.schemas import (
     AgentPlanIn,
     AgentPlanOut,
     PlanStep,
+    ExecutePlanIn,
+    ExecutePlanOut,
 )
 from ..common.config import settings
 from ..detector.detector import run_detection_cycle
@@ -352,5 +354,27 @@ def agent_plan(payload: AgentPlanIn, db: Session = Depends(get_db_session)) -> A
 def agent_narrative(db: Session = Depends(get_db_session)) -> dict:
     agent = AgentService()
     return agent.narrative_summary(db)
+
+
+@app.post("/agent/execute_plan", response_model=ExecutePlanOut, dependencies=[Depends(require_admin_token)])
+def execute_plan(payload: ExecutePlanIn, db: Session = Depends(get_db_session)) -> ExecutePlanOut:
+    results = []
+    succeeded = 0
+    failed = 0
+    for step in payload.steps:
+        if not step.action:
+            results.append({"description": step.description, "action": None, "success": True, "logs": None})
+            continue
+        res = execute_runbook(step.action, step.params or {})
+        ok = bool(res.get("success"))
+        succeeded += int(ok)
+        failed += int(not ok)
+        results.append({
+            "description": step.description,
+            "action": step.action,
+            "success": ok,
+            "logs": str(res.get("logs")),
+        })
+    return ExecutePlanOut(results=results, succeeded=succeeded, failed=failed)
 
 

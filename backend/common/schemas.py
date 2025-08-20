@@ -59,3 +59,20 @@ class AgentPlanOut(BaseModel):
     explanation: str
 
 
+class ExecutePlanIn(BaseModel):
+    steps: List[PlanStep]
+
+
+class StepResult(BaseModel):
+    description: str
+    action: str | None = None
+    success: bool
+    logs: str | None = None
+
+
+class ExecutePlanOut(BaseModel):
+    results: List[StepResult]
+    succeeded: int
+    failed: int
+
+
