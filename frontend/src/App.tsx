@@ -6,6 +6,7 @@ import Forecast from './components/Forecast';
 import RunbookCatalog from './components/RunbookCatalog';
 import ChatAgent from './components/ChatAgent';
 import SimulatePanel from './components/SimulatePanel';
+import ReportButton from './components/ReportButton';
 
 const API = '/api';
 
@@ -33,6 +34,7 @@ const App: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" gutterBottom>AutoOps Sentinel</Typography>
+      <ReportButton />
       <StatusCards />
       <Box sx={{ my: 2 }}>
         <Grid container spacing={2}>

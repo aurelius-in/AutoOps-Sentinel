@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autoops-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autoops-api
+  template:
+    metadata:
+      labels:
+        app: autoops-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/autoops-api:latest
+          env:
+            - name: DATABASE_URL
+              value: sqlite:///autoops.db
+          ports:
+            - containerPort: 8000
+          args: ["uvicorn", "backend.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+

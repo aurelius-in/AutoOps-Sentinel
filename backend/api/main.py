@@ -8,6 +8,7 @@ from fastapi import Depends, FastAPI
 import asyncio
 import random
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..common.db import Base, engine, get_db_session, SessionLocal
@@ -136,6 +137,38 @@ def demo_reset(db: Session = Depends(get_db_session)) -> dict:
     db.query(models.Event).delete()
     db.commit()
     return {"status": "ok"}
+
+
+@app.get("/report/pdf")
+def export_report_pdf(db: Session = Depends(get_db_session)):
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.pdfgen import canvas
+    import io
+
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=LETTER)
+    width, height = LETTER
+    y = height - 72
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(72, y, "AutoOps Sentinel Report")
+    y -= 24
+    c.setFont("Helvetica", 10)
+    s = summary(db)
+    b = business_summary(db)
+    lines = [
+        f"Anomalies: {s['anomalies']}",
+        f"Actions: {s['actions']}",
+        f"Incidents: {s['incidents']}",
+        f"Downtime avoided (min): {b['downtime_avoided_min']}",
+        f"Cost avoided ($): {b['cost_avoided']}",
+    ]
+    for line in lines:
+        y -= 16
+        c.drawString(72, y, line)
+    c.showPage()
+    c.save()
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=autoops-report.pdf"})
 
 
 @app.post("/metrics")
