@@ -14,6 +14,10 @@ class Settings(BaseSettings):
             "sqlite:///autoops.db",
         )
     )
+    influx_url: str | None = Field(default=os.getenv("INFLUX_URL"))
+    influx_token: str | None = Field(default=os.getenv("INFLUX_TOKEN"))
+    influx_org: str | None = Field(default=os.getenv("INFLUX_ORG"))
+    influx_bucket: str | None = Field(default=os.getenv("INFLUX_BUCKET"))
 
     # Agent / LLM
     openai_api_key: str | None = Field(default=os.getenv("OPENAI_API_KEY"))

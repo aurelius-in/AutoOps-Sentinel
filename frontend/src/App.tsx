@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography, Grid, Paper, Button } from '@mui/material';
+import { Container, Box, Typography, Grid, Paper, AppBar, Toolbar } from '@mui/material';
 import StatusCards from './components/StatusCards';
 import Timeline from './components/Timeline';
 import Forecast from './components/Forecast';
@@ -40,13 +40,20 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
-      <Typography variant="h4" gutterBottom>AutoOps Sentinel</Typography>
+    <>
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>AutoOps Sentinel</Typography>
+          <div>
+            <label style={{ fontSize: 12 }}>API Token:&nbsp;</label>
+            <input defaultValue={typeof window !== 'undefined' ? localStorage.getItem('API_TOKEN') || '' : ''} onChange={(e) => localStorage.setItem('API_TOKEN', e.target.value)} placeholder="optional" />
+          </div>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="lg" sx={{ py: 3 }}>
       <div style={{ marginBottom: 8 }}>
-        <label>API Token:&nbsp;</label>
-        <input defaultValue={typeof window !== 'undefined' ? localStorage.getItem('API_TOKEN') || '' : ''} onChange={(e) => localStorage.setItem('API_TOKEN', e.target.value)} placeholder="optional" />
+        <ReportButton />
       </div>
-      <ReportButton />
       <BusinessTicker />
       <StatusCards />
       <Box sx={{ my: 2 }}>
@@ -97,7 +104,8 @@ const App: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
-    </Container>
+      </Container>
+    </>
   );
 };
 

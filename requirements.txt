@@ -10,4 +10,5 @@ numpy==2.1.1
 prophet==1.1.5 ; sys_platform != 'win32'  # optional; skip on Windows dev by default
 reportlab==4.2.2
 openai==1.51.0
+influxdb-client==1.46.0
 
