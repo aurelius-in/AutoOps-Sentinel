@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # Detector
     detector_interval_seconds: int = Field(default=10)
 
+    # Security
+    api_token: str | None = Field(default=os.getenv("API_TOKEN"))
+
     class Config:
         env_file = ".env"
         extra = "ignore"
