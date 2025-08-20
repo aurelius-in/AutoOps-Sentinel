@@ -31,10 +31,19 @@ const PlanPanel: React.FC = () => {
     });
   };
 
+  const executeAll = async () => {
+    if (steps.length === 0) return;
+    await fetch(`${API_BASE}/agent/execute_plan`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ steps })
+    });
+  };
+
   return (
     <div>
       <h3>Agent Plan</h3>
       <button onClick={propose} disabled={loading}>{loading ? 'Thinking…' : 'Propose Plan'}</button>
+      {steps.length > 0 && <button style={{ marginLeft: 8 }} onClick={executeAll}>Execute All</button>}
       {explanation && <p style={{ marginTop: 8 }}>{explanation}</p>}
       <ol>
         {steps.map((s, idx) => (
