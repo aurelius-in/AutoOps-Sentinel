@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { API_BASE } from '../modules/api';
+import { API_BASE, getAuthHeaders } from '../modules/api';
 
 const Policies: React.FC = () => {
   const [rules, setRules] = useState<any[]>([]);
@@ -17,7 +17,7 @@ const Policies: React.FC = () => {
   }, []);
   const autoApply = async () => {
     setMsg('Applying suggestions...');
-    await fetch(`${API_BASE}/actions/auto`, { method: 'POST' });
+    await fetch(`${API_BASE}/actions/auto`, { method: 'POST', headers: { ...getAuthHeaders() } });
     setMsg('Applied');
   };
   return (
