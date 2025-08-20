@@ -4,7 +4,7 @@ const Forecast: React.FC = () => {
   return (
     <div style={{ marginTop: 16 }}>
       <h3>Forecast</h3>
-      <div>Predictive chart placeholder</div>
+      <div>Predictive chart placeholder (Prophet optional)</div>
     </div>
   );
 };

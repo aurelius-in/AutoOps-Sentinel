@@ -11,6 +11,25 @@ from ruamel.yaml import YAML
 yaml = YAML(typ="safe")
 
 
+def list_runbooks() -> List[Dict[str, Any]]:
+    base = Path("runbooks")
+    items: List[Dict[str, Any]] = []
+    if not base.exists():
+        return items
+    for p in sorted(base.glob("*.y*ml")):
+        try:
+            with p.open("r", encoding="utf-8") as f:
+                data = yaml.load(f) or {}
+            items.append({
+                "name": data.get("name") or p.stem,
+                "path": str(p),
+                "steps": data.get("steps", []),
+            })
+        except Exception:  # noqa: BLE001
+            items.append({"name": p.stem, "path": str(p), "steps": []})
+    return items
+
+
 def _load_runbook(name: str) -> Dict[str, Any]:
     # map name to file in runbooks directory
     base = Path("runbooks")

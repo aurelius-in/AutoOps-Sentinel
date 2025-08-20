@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../modules/api';
 
 const ChatAgent: React.FC = () => {
   const [q, setQ] = useState('What happened in the last hour?');
   const [a, setA] = useState<string>('');
 
   const ask = async () => {
-    const res = await fetch('http://localhost:8000/agent/query', {
+    const res = await fetch(`${API_BASE}/agent/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: q }),

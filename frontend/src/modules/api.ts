@@ -1,4 +1,4 @@
-export const API_BASE = process.env.REACT_APP_API || 'http://localhost:8000';
+export const API_BASE = (import.meta as any).env?.VITE_API || '/api';
 
 export async function fetchAnomalies() {
   const res = await fetch(`${API_BASE}/anomalies`);
