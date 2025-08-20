@@ -5,10 +5,12 @@ from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import Depends, FastAPI
+import asyncio
+import random
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from ..common.db import Base, engine, get_db_session
+from ..common.db import Base, engine, get_db_session, SessionLocal
 from ..common import models
 from ..common.schemas import (
     MetricIn,
@@ -91,6 +93,49 @@ def business_summary(db: Session = Depends(get_db_session)) -> dict:
     downtime_avoided_min = actions * 5
     cost_per_min = 1500  # illustrative
     return {"downtime_avoided_min": downtime_avoided_min, "cost_avoided": downtime_avoided_min * cost_per_min}
+
+
+async def _simulate_mode(mode: str, seconds: int = 15) -> None:
+    db: Session = SessionLocal()
+    try:
+        iterations = max(1, seconds * 2)
+        for i in range(iterations):
+            now = datetime.utcnow().isoformat()
+            if mode == "cpu-spike":
+                value = (30 + random.random() * 5) if i < iterations // 3 else (92 + random.random() * 6)
+                payload = {"metric": "cpu", "value": value, "timestamp": now, "tags": {"sim": True}}
+            elif mode == "error-storm":
+                value = (1 + random.random() * 2) if i < iterations // 3 else (12 + random.random() * 4)
+                payload = {"metric": "error_rate", "value": value, "timestamp": now, "tags": {"sim": True}}
+            else:
+                value = (2 + random.random() * 3) if i < iterations // 3 else (20 + random.random() * 5)
+                payload = {"metric": "failed_logins", "value": value, "timestamp": now, "tags": {"sim": True}}
+            db.add(models.Event(source="sim", type="metric", payload=payload))
+            if (i + 1) % 10 == 0:
+                db.commit()
+            await asyncio.sleep(0.5)
+        db.commit()
+    finally:
+        db.close()
+
+
+@app.post("/simulate/{mode}")
+async def start_simulation(mode: str) -> dict:
+    if mode not in {"cpu-spike", "error-storm", "login-attack"}:
+        return {"status": "error", "message": "invalid mode"}
+    asyncio.create_task(_simulate_mode(mode))
+    return {"status": "started", "mode": mode}
+
+
+@app.post("/demo/reset")
+def demo_reset(db: Session = Depends(get_db_session)) -> dict:
+    # delete in order of dependencies
+    db.query(models.Action).delete()
+    db.query(models.Anomaly).delete()
+    db.query(models.Incident).delete()
+    db.query(models.Event).delete()
+    db.commit()
+    return {"status": "ok"}
 
 
 @app.post("/metrics")
