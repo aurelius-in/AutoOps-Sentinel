@@ -13,14 +13,16 @@ const Card: React.FC<CardProps> = ({ title, value }) => (
 const StatusCards: React.FC = () => {
   const [summary, setSummary] = useState<{anomalies:number; actions:number; incidents:number} | null>(null);
   const [biz, setBiz] = useState<{downtime_avoided_min:number; cost_avoided:number} | null>(null);
+  const [slo, setSlo] = useState<{availability_pct:number; latency_p95_ms:number|null} | null>(null);
   useEffect(() => {
     const load = async () => {
       try {
-        const [s, b] = await Promise.all([
+        const [s, b, sl] = await Promise.all([
           fetch(`${API_BASE}/summary`).then(r=>r.json()),
           fetch(`${API_BASE}/business`).then(r=>r.json()),
+          fetch(`${API_BASE}/slo`).then(r=>r.json()),
         ]);
-        setSummary(s); setBiz(b);
+        setSummary(s); setBiz(b); setSlo(sl);
       } catch {}
     };
     load();
@@ -32,6 +34,8 @@ const StatusCards: React.FC = () => {
       <Card title="Anomalies" value={String(summary?.anomalies ?? 0)} />
       <Card title="Actions" value={String(summary?.actions ?? 0)} />
       <Card title="Incidents" value={String(summary?.incidents ?? 0)} />
+      <Card title="Avail" value={`${(slo?.availability_pct ?? 100).toFixed(1)}%`} />
+      <Card title="p95" value={`${slo?.latency_p95_ms ?? '-'} ms`} />
       <Card title="Cost Avoided" value={`$${(biz?.cost_avoided ?? 0).toLocaleString()}`} />
     </div>
   );
