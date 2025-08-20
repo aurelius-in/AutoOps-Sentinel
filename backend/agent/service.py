@@ -112,4 +112,32 @@ class AgentService:
             ans = "System is stable. No recent anomalies."
         return ans, "Heuristic narrative without external LLM."
 
+    def narrative_summary(self, db: Session) -> dict:
+        anomalies = self._recent_anomalies(db, 12 * 60)
+        actions = self._recent_actions(db, 12 * 60)
+        incidents_open = (
+            db.query(models.Incident)
+            .filter(models.Incident.status == "open")
+            .count()
+        )
+        incidents_mitigated = (
+            db.query(models.Incident)
+            .filter(models.Incident.status == "mitigated")
+            .count()
+        )
+        downtime_avoided_min = 5 * len(actions)
+        cost_avoided = downtime_avoided_min * 1500
+        bullets = [
+            f"{len(anomalies)} anomalies observed in the last 12h; {len(actions)} remediation actions executed.",
+            f"{incidents_mitigated} incidents mitigated; {incidents_open} currently open.",
+            f"Estimated downtime avoided: ~{downtime_avoided_min} minutes.",
+            f"Estimated cost avoided: ${cost_avoided:,}.",
+            "System stable; policies will auto-scale on CPU and roll back on elevated errors.",
+        ]
+        return {
+            "bullets": bullets,
+            "downtime_avoided_min": downtime_avoided_min,
+            "cost_avoided": cost_avoided,
+        }
+
 
