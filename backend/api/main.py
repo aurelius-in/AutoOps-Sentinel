@@ -127,6 +127,26 @@ def execute_action(payload: ExecuteActionIn, db: Session = Depends(get_db_sessio
     )
 
 
+@app.get("/actions")
+def list_actions(db: Session = Depends(get_db_session)) -> list[dict]:
+    rows = (
+        db.query(models.Action)
+        .order_by(models.Action.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [
+        {
+            "id": str(r.id),
+            "name": r.name,
+            "success": r.success,
+            "created_at": r.created_at.isoformat(),
+            "result": r.result,
+        }
+        for r in rows
+    ]
+
+
 @app.post("/agent/query", response_model=AgentQueryOut)
 def agent_query(payload: AgentQueryIn, db: Session = Depends(get_db_session)) -> AgentQueryOut:
     agent = AgentService()
