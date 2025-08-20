@@ -14,6 +14,7 @@ Prereqs: Docker, Docker Compose.
    - CPU spike: `python -m backend.scripts.simulate cpu-spike`
    - Error storm: `python -m backend.scripts.simulate error-storm`
    - Login attack: `python -m backend.scripts.simulate login-attack`
+   - Wow demo: `python -m backend.scripts.wow_demo --api http://localhost:8000`
 4. Explore endpoints
    - `GET /anomalies` → detected anomalies
    - `POST /agent/plan` → suggested steps
@@ -32,3 +33,4 @@ uvicorn backend.api.main:app --reload
 - Postgres runs in Docker with default creds `autoops:autoops`.
 - Runbooks live under `runbooks/` and are echo-simulated for safety.
 - Policy rules at `backend/policy/rules.yml`.
+- Sensitive endpoints accept `X-API-Token` if `API_TOKEN` is set.
