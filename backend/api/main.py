@@ -29,7 +29,7 @@ from ..common.schemas import (
 from ..common.config import settings
 from ..detector.detector import run_detection_cycle
 from ..detector.forecast import simple_forecast, prophet_forecast
-from ..remediator.executor import execute_runbook, list_runbooks
+from ..remediator.executor import execute_runbook, list_runbooks, preview_runbook
 from ..agent.service import AgentService
 from ..policy.engine import evaluate_policies, load_rules
 from ..common.ops import mitigate_incidents_for_action
@@ -440,6 +440,13 @@ def get_runbooks(db: Session = Depends(get_db_session)) -> list[dict]:
         item["recent_success_rate"] = (ok / total) if total else None
         item["last_success_at"] = last_success
     return items
+
+
+@app.post("/runbooks/preview")
+def runbook_preview(payload: dict) -> dict:
+    name = str(payload.get("name"))
+    params = payload.get("params") or {}
+    return preview_runbook(name, params)
 
 
 @app.get("/slo")
