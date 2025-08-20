@@ -340,8 +340,58 @@ def export_actions_csv(db: Session = Depends(get_db_session)) -> PlainTextRespon
 
 
 @app.get("/runbooks")
-def get_runbooks() -> list[dict]:
-    return list_runbooks()
+def get_runbooks(db: Session = Depends(get_db_session)) -> list[dict]:
+    items = list_runbooks()
+    # enrich with simple success-rate stats from recent actions
+    for item in items:
+        name = item.get("name")
+        if not name:
+            continue
+        q = (
+            db.query(models.Action)
+            .filter(models.Action.name == name)
+            .order_by(models.Action.created_at.desc())
+            .limit(50)
+            .all()
+        )
+        total = len(q)
+        ok = len([a for a in q if a.success])
+        last_success = next((a.created_at.isoformat() for a in q if a.success), None)
+        item["recent_success_rate"] = (ok / total) if total else None
+        item["last_success_at"] = last_success
+    return items
+
+
+@app.get("/slo")
+def slo(db: Session = Depends(get_db_session)) -> dict:
+    from statistics import mean
+
+    # naive availability from recent error_rate (%), and p95 latency
+    cutoff_minutes = 60
+    events = (
+        db.query(models.Event)
+        .filter(models.Event.type == "metric")
+        .order_by(models.Event.created_at.desc())
+        .limit(2000)
+        .all()
+    )
+    error_rates = []
+    latencies = []
+    for e in events:
+        payload = e.payload or {}
+        m = payload.get("metric")
+        v = payload.get("value")
+        if m == "error_rate":
+            error_rates.append(float(v))
+        elif m == "latency":
+            latencies.append(float(v))
+    availability = max(0.0, 100.0 - (mean(error_rates) if error_rates else 0.0))
+    p95 = None
+    if latencies:
+        s = sorted(latencies)
+        idx = int(0.95 * (len(s) - 1))
+        p95 = s[idx]
+    return {"availability_pct": availability, "latency_p95_ms": p95}
 
 
 @app.get("/incidents")
