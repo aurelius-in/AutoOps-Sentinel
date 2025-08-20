@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     # Security
     api_token: str | None = Field(default=os.getenv("API_TOKEN"))
 
+    # CORS
+    cors_origins: str = Field(default=os.getenv("CORS_ORIGINS", "*"))
+
+    def get_cors_origins(self) -> list[str]:
+        origins = [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        return origins if origins else ["*"]
+
     class Config:
         env_file = ".env"
         extra = "ignore"
