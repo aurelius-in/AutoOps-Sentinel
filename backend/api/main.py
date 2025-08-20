@@ -29,7 +29,7 @@ from ..detector.detector import run_detection_cycle
 from ..detector.forecast import simple_forecast
 from ..remediator.executor import execute_runbook, list_runbooks
 from ..agent.service import AgentService
-from ..policy.engine import evaluate_policies
+from ..policy.engine import evaluate_policies, load_rules
 from ..common.ops import mitigate_incidents_for_action
 
 
@@ -78,6 +78,14 @@ def summary(db: Session = Depends(get_db_session)) -> dict:
 @app.get("/policies/suggest")
 def policy_suggestions(db: Session = Depends(get_db_session)) -> list[dict]:
     return evaluate_policies(db)
+
+
+@app.get("/policies")
+def list_policies() -> list[dict]:
+    return [
+        {"condition": r.condition, "action": r.action}
+        for r in load_rules()
+    ]
 
 
 @app.get("/forecast")
