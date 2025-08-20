@@ -1,0 +1,5 @@
+name: scale_deployment
+steps:
+  - run: "echo kubectl scale deployment/{deployment} --replicas={replicas}"
+  - verify: "echo kubectl get deploy {deployment} -o wide"
+

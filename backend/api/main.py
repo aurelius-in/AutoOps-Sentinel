@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import asyncio
+from datetime import datetime, timedelta
+from typing import List
+
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+
+from ..common.db import Base, engine, get_db_session
+from ..common import models
+from ..common.schemas import (
+    MetricIn,
+    AnomalyOut,
+    ExecuteActionIn,
+    ExecuteActionOut,
+    AgentQueryIn,
+    AgentQueryOut,
+    AgentPlanIn,
+    AgentPlanOut,
+    PlanStep,
+)
+from ..common.config import settings
+from ..detector.detector import run_detection_cycle
+from ..remediator.executor import execute_runbook
+from ..agent.service import AgentService
+
+
+app = FastAPI(title=settings.app_name)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.on_event("startup")
+async def on_startup() -> None:
+    # Create tables for demo; in production use Alembic migrations
+    Base.metadata.create_all(bind=engine)
+
+    async def detector_loop():
+        while True:
+            try:
+                await run_detection_cycle()
+            except Exception as exc:  # noqa: BLE001
+                # Basic log; replace with structured logging
+                print(f"[detector] error: {exc}")
+            await asyncio.sleep(settings.detector_interval_seconds)
+
+    # Fire-and-forget background task
+    asyncio.create_task(detector_loop())
+
+
+@app.post("/metrics")
+def ingest_metric(metric: MetricIn, db: Session = Depends(get_db_session)) -> dict:
+    event = models.Event(
+        source=metric.source,
+        type="metric",
+        payload={
+            "metric": metric.metric,
+            "value": metric.value,
+            "timestamp": metric.timestamp.isoformat(),
+            "tags": metric.tags,
+        },
+    )
+    db.add(event)
+    db.commit()
+    return {"status": "ok"}
+
+
+@app.get("/anomalies", response_model=List[AnomalyOut])
+def get_anomalies(db: Session = Depends(get_db_session)) -> List[AnomalyOut]:
+    rows = (
+        db.query(models.Anomaly)
+        .order_by(models.Anomaly.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [
+        AnomalyOut(
+            id=str(r.id),
+            metric=r.metric,
+            score=r.score,
+            severity=r.severity,
+            details=r.details,
+            created_at=r.created_at,
+        )
+        for r in rows
+    ]
+
+
+@app.post("/actions/execute", response_model=ExecuteActionOut)
+def execute_action(payload: ExecuteActionIn, db: Session = Depends(get_db_session)) -> ExecuteActionOut:
+    result = execute_runbook(payload.name, payload.params)
+    # Persist action
+    action = models.Action(
+        name=payload.name,
+        input=payload.params,
+        result=result,
+        success=bool(result.get("success")),
+    )
+    db.add(action)
+    db.commit()
+    return ExecuteActionOut(
+        success=bool(result.get("success")),
+        duration_seconds=float(result.get("duration_seconds", 0.0)),
+        logs=str(result.get("logs", "")),
+        action_id=str(action.id),
+    )
+
+
+@app.post("/agent/query", response_model=AgentQueryOut)
+def agent_query(payload: AgentQueryIn, db: Session = Depends(get_db_session)) -> AgentQueryOut:
+    agent = AgentService()
+    answer, reasoning = agent.answer_question(db, payload.question)
+    return AgentQueryOut(answer=answer, reasoning=reasoning)
+
+
+@app.post("/agent/plan", response_model=AgentPlanOut)
+def agent_plan(payload: AgentPlanIn, db: Session = Depends(get_db_session)) -> AgentPlanOut:
+    agent = AgentService()
+    steps, explanation = agent.generate_plan(db, payload.objectives, payload.context)
+    return AgentPlanOut(
+        steps=[PlanStep(**s) for s in steps],
+        explanation=explanation,
+    )
+
+

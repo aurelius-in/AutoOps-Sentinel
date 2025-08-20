@@ -1,0 +1,5 @@
+- condition: "cpu > 90 for 3m"
+  action: "scale_deployment"
+- condition: "error_rate > 10%"
+  action: "rollout_undo"
+

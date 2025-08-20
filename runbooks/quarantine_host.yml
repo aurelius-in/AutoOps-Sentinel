@@ -1,0 +1,5 @@
+name: quarantine_host
+steps:
+  - run: "echo isolating host {host}"
+  - verify: "echo confirm host {host} isolated"
+
