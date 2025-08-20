@@ -24,9 +24,10 @@ def list_runbooks() -> List[Dict[str, Any]]:
                 "name": data.get("name") or p.stem,
                 "path": str(p),
                 "steps": data.get("steps", []),
+                "requires_approval": bool(data.get("requires_approval", False)),
             })
         except Exception:  # noqa: BLE001
-            items.append({"name": p.stem, "path": str(p), "steps": []})
+            items.append({"name": p.stem, "path": str(p), "steps": [], "requires_approval": False})
     return items
 
 
@@ -58,6 +59,8 @@ def execute_runbook(name: str, params: Dict[str, Any] | None = None) -> Dict[str
         runbook = _load_runbook(name)
     except FileNotFoundError:
         return {"success": False, "duration_seconds": 0.0, "logs": f"runbook {name} not found"}
+    if runbook.get("requires_approval") and not params.get("approved"):
+        return {"success": False, "duration_seconds": 0.0, "logs": f"runbook {name} requires approval"}
 
     steps: List[Dict[str, Any]] = runbook.get("steps", [])
     logs: List[str] = [f"runbook: {name}"]

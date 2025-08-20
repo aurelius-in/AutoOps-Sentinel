@@ -197,6 +197,20 @@ def ingest_metric(metric: MetricIn, db: Session = Depends(get_db_session)) -> di
     return {"status": "ok"}
 
 
+@app.get("/events")
+def list_events(db: Session = Depends(get_db_session)) -> list[dict]:
+    rows = (
+        db.query(models.Event)
+        .order_by(models.Event.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [
+        {"id": str(r.id), "type": r.type, "source": r.source, "created_at": r.created_at.isoformat(), "payload": r.payload}
+        for r in rows
+    ]
+
+
 @app.get("/anomalies", response_model=List[AnomalyOut])
 def get_anomalies(db: Session = Depends(get_db_session)) -> List[AnomalyOut]:
     rows = (

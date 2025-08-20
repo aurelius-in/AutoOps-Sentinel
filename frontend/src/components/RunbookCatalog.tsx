@@ -3,10 +3,10 @@ import { API_BASE } from '../modules/api';
 
 const RunbookCatalog: React.FC = () => {
   const [runbooks, setRunbooks] = useState<any[]>([]);
-  const exec = async (name: string) => {
+  const exec = async (name: string, approved: boolean) => {
     await fetch(`${API_BASE}/actions/execute`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, params: { deployment: 'myapp', replicas: 2, service: 'myapp' } })
+      body: JSON.stringify({ name, params: { deployment: 'myapp', replicas: 2, service: 'myapp', approved } })
     });
   };
   useEffect(() => {
@@ -23,7 +23,8 @@ const RunbookCatalog: React.FC = () => {
         {runbooks.map((r) => (
           <li key={r.name}>
             <b>{r.name}</b> <small>({r.path})</small>
-            <button style={{ marginLeft: 8 }} onClick={() => exec(r.name)}>Run</button>
+            {r.requires_approval && <span style={{ marginLeft: 8, color: '#c00' }}>Requires approval</span>}
+            <button style={{ marginLeft: 8 }} onClick={() => exec(r.name, true)}>Run</button>
           </li>
         ))}
       </ul>
