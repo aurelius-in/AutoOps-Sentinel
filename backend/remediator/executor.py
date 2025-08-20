@@ -66,17 +66,24 @@ def execute_runbook(name: str, params: Dict[str, Any] | None = None) -> Dict[str
     logs: List[str] = [f"runbook: {name}"]
     start = time.monotonic()
     success = True
+    dry_run = bool(params.get("dry_run", False))
     for i, step in enumerate(steps, start=1):
         if "run" in step:
             cmd = str(step["run"]).format(**params)
-            rc, out = _safe_shell(cmd)
+            if dry_run:
+                rc, out = 0, "[dry-run]"
+            else:
+                rc, out = _safe_shell(cmd)
             logs.append(f"step {i} run: {cmd}\n{out}")
             if rc != 0:
                 success = False
                 break
         elif "verify" in step:
             cmd = str(step["verify"]).format(**params)
-            rc, out = _safe_shell(cmd)
+            if dry_run:
+                rc, out = 0, "[dry-run]"
+            else:
+                rc, out = _safe_shell(cmd)
             logs.append(f"step {i} verify: {cmd}\n{out}")
             if rc != 0:
                 success = False
