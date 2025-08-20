@@ -8,6 +8,7 @@ import ChatAgent from './components/ChatAgent';
 import SimulatePanel from './components/SimulatePanel';
 import ReportButton from './components/ReportButton';
 import Policies from './components/Policies';
+import PlanPanel from './components/PlanPanel';
 
 const API = '/api';
 
@@ -63,6 +64,9 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <Policies />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <PlanPanel />
             </Paper>
           </Grid>
         </Grid>
