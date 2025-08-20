@@ -39,6 +39,10 @@ const App: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" gutterBottom>AutoOps Sentinel</Typography>
+      <div style={{ marginBottom: 8 }}>
+        <label>API Token:&nbsp;</label>
+        <input defaultValue={typeof window !== 'undefined' ? localStorage.getItem('API_TOKEN') || '' : ''} onChange={(e) => localStorage.setItem('API_TOKEN', e.target.value)} placeholder="optional" />
+      </div>
       <ReportButton />
       <StatusCards />
       <Box sx={{ my: 2 }}>

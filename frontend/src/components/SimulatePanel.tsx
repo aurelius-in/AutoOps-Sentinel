@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { API_BASE } from '../modules/api';
+import { API_BASE, getAuthHeaders } from '../modules/api';
 
 const SimulatePanel: React.FC = () => {
   const [msg, setMsg] = useState('');
   const trigger = async (mode: string) => {
     setMsg(`Starting ${mode}...`);
-    await fetch(`${API_BASE}/simulate/${mode}`, { method: 'POST' });
+    await fetch(`${API_BASE}/simulate/${mode}`, { method: 'POST', headers: { ...getAuthHeaders() } });
     setMsg(`Triggered ${mode}`);
   };
   const reset = async () => {
-    await fetch(`${API_BASE}/demo/reset`, { method: 'POST' });
+    await fetch(`${API_BASE}/demo/reset`, { method: 'POST', headers: { ...getAuthHeaders() } });
     setMsg('Demo reset');
   }
   const wow = async () => {
     setMsg('Starting Wow Demo…');
-    await fetch(`${API_BASE}/demo/wow`, { method: 'POST' });
+    await fetch(`${API_BASE}/demo/wow`, { method: 'POST', headers: { ...getAuthHeaders() } });
     setMsg('Wow Demo started');
   }
   return (
