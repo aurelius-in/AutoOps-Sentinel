@@ -173,6 +173,41 @@ async def start_simulation(mode: str) -> dict:
     return {"status": "started", "mode": mode}
 
 
+async def _wow_demo_sequence(token_guarded: bool = False) -> None:
+    # Orchestrate: reset -> error-storm -> auto-apply -> cpu-spike -> auto-apply
+    # Uses direct DB access to avoid HTTP recursion
+    db: Session = SessionLocal()
+    try:
+        db.query(models.Action).delete()
+        db.query(models.Anomaly).delete()
+        db.query(models.Incident).delete()
+        db.query(models.Event).delete()
+        db.commit()
+
+        await _simulate_mode("error-storm", seconds=10)
+        # auto-apply policies
+        suggestions = evaluate_policies(db)
+        for s in suggestions:
+            res = execute_runbook(s.get("action"), {"deployment": "myapp", "replicas": 2, "approved": True})
+            db.add(models.Action(name=s.get("action"), input={}, result=res, success=bool(res.get("success"))))
+        db.commit()
+
+        await _simulate_mode("cpu-spike", seconds=10)
+        suggestions = evaluate_policies(db)
+        for s in suggestions:
+            res = execute_runbook(s.get("action"), {"deployment": "myapp", "replicas": 2, "approved": True})
+            db.add(models.Action(name=s.get("action"), input={}, result=res, success=bool(res.get("success"))))
+        db.commit()
+    finally:
+        db.close()
+
+
+@app.post("/demo/wow", dependencies=[Depends(require_admin_token)])
+def demo_wow() -> dict:
+    asyncio.create_task(_wow_demo_sequence())
+    return {"status": "started"}
+
+
 @app.post("/demo/reset", dependencies=[Depends(require_admin_token)])
 def demo_reset(db: Session = Depends(get_db_session)) -> dict:
     # delete in order of dependencies
