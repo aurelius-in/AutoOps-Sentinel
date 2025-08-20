@@ -34,3 +34,15 @@ uvicorn backend.api.main:app --reload
 - Runbooks live under `runbooks/` and are echo-simulated for safety.
 - Policy rules at `backend/policy/rules.yml`.
 - Sensitive endpoints accept `X-API-Token` if `API_TOKEN` is set.
+
+## Frontend via Docker Compose
+
+Start both API and frontend with one command:
+
+```
+docker compose -f deploy/docker-compose.yml up --build -d
+```
+
+Then open `http://localhost:5173`.
+
+More details: see `docs/deployment.md`.
