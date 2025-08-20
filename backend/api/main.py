@@ -33,7 +33,7 @@ from ..remediator.executor import execute_runbook, list_runbooks, preview_runboo
 from ..agent.service import AgentService
 from ..policy.engine import evaluate_policies, load_rules
 from ..common.ops import mitigate_incidents_for_action
-from .security import require_admin_token
+from .security import require_admin_token, rbac_allow
 from ..common.logging import configure_root_logger
 from ..common.metrics_store import write_metric_influx
 
@@ -144,7 +144,7 @@ def list_policies() -> list[dict]:
     ]
 
 
-@app.post("/actions/auto", dependencies=[Depends(require_admin_token)])
+@app.post("/actions/auto", dependencies=[Depends(require_admin_token), Depends(rbac_allow("operator"))])
 def auto_apply_actions(db: Session = Depends(get_db_session)) -> dict:
     suggestions = evaluate_policies(db)
     results = []
@@ -207,7 +207,7 @@ async def _simulate_mode(mode: str, seconds: int = 15) -> None:
         db.close()
 
 
-@app.post("/simulate/{mode}", dependencies=[Depends(require_admin_token)])
+@app.post("/simulate/{mode}", dependencies=[Depends(require_admin_token), Depends(rbac_allow("operator"))])
 async def start_simulation(mode: str) -> dict:
     if mode not in {"cpu-spike", "error-storm", "login-attack"}:
         return {"status": "error", "message": "invalid mode"}
@@ -244,13 +244,13 @@ async def _wow_demo_sequence(token_guarded: bool = False) -> None:
         db.close()
 
 
-@app.post("/demo/wow", dependencies=[Depends(require_admin_token)])
+@app.post("/demo/wow", dependencies=[Depends(require_admin_token), Depends(rbac_allow("operator"))])
 def demo_wow() -> dict:
     asyncio.create_task(_wow_demo_sequence())
     return {"status": "started"}
 
 
-@app.post("/demo/reset", dependencies=[Depends(require_admin_token)])
+@app.post("/demo/reset", dependencies=[Depends(require_admin_token), Depends(rbac_allow("admin"))])
 def demo_reset(db: Session = Depends(get_db_session)) -> dict:
     # delete in order of dependencies
     db.query(models.Action).delete()
@@ -435,7 +435,7 @@ def anomaly_stats(db: Session = Depends(get_db_session)) -> dict:
     return stats
 
 
-@app.post("/actions/execute", response_model=ExecuteActionOut, dependencies=[Depends(require_admin_token)])
+@app.post("/actions/execute", response_model=ExecuteActionOut, dependencies=[Depends(require_admin_token), Depends(rbac_allow("operator"))])
 def execute_action(payload: ExecuteActionIn, db: Session = Depends(get_db_session)) -> ExecuteActionOut:
     result = execute_runbook(payload.name, payload.params)
     # Persist action
@@ -626,7 +626,7 @@ def agent_narrative(db: Session = Depends(get_db_session)) -> dict:
     return agent.narrative_summary(db)
 
 
-@app.post("/agent/execute_plan", response_model=ExecutePlanOut, dependencies=[Depends(require_admin_token)])
+@app.post("/agent/execute_plan", response_model=ExecutePlanOut, dependencies=[Depends(require_admin_token), Depends(rbac_allow("operator"))])
 def execute_plan(payload: ExecutePlanIn, db: Session = Depends(get_db_session)) -> ExecutePlanOut:
     results = []
     succeeded = 0
