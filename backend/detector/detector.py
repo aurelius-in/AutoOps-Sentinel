@@ -63,11 +63,23 @@ async def run_detection_cycle() -> None:
             score = _detect_score(values)
             if score is None:
                 continue
-            incident = create_incident_if_needed(db, metric, _severity_from_score(float(score)))
+            # Deduplicate: avoid spamming anomalies for same metric/severity within 60s
+            dedup_cutoff = datetime.utcnow() - timedelta(seconds=60)
+            severity = _severity_from_score(float(score))
+            recent_same = (
+                db.query(models.Anomaly)
+                .filter(models.Anomaly.metric == metric)
+                .filter(models.Anomaly.severity == severity)
+                .filter(models.Anomaly.created_at >= dedup_cutoff)
+                .first()
+            )
+            if recent_same:
+                continue
+            incident = create_incident_if_needed(db, metric, severity)
             anomaly = models.Anomaly(
                 metric=metric,
                 score=float(score),
-                severity=_severity_from_score(float(score)),
+                severity=severity,
                 details={
                     "latest": values[-1],
                     "mean": mean(values[:-1]) if len(values) > 1 else values[-1],

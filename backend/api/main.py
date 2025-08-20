@@ -66,6 +66,24 @@ async def on_startup() -> None:
     # Fire-and-forget background task
     asyncio.create_task(detector_loop())
 
+    async def cleanup_loop():
+        while True:
+            try:
+                # prune records older than 7 days
+                db: Session = SessionLocal()
+                cutoff = datetime.utcnow() - timedelta(days=7)
+                db.query(models.Event).filter(models.Event.created_at < cutoff).delete()
+                db.query(models.Anomaly).filter(models.Anomaly.created_at < cutoff).delete()
+                db.query(models.Action).filter(models.Action.created_at < cutoff).delete()
+                db.query(models.Incident).filter(models.Incident.created_at < cutoff).delete()
+                db.commit()
+                db.close()
+            except Exception as exc:  # noqa: BLE001
+                print(f"[cleanup] error: {exc}")
+            await asyncio.sleep(3600)
+
+    asyncio.create_task(cleanup_loop())
+
 
 @app.get("/health")
 def health() -> dict:
