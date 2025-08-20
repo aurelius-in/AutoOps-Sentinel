@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from ..common.db import SessionLocal
 from ..common import models
 from ..common.ops import create_incident_if_needed
+from ..common.notify import send_webhook
 from .algorithms import rolling_zscore, isolation_forest_score, mad_anomaly_score
 
 
@@ -95,6 +96,11 @@ async def run_detection_cycle() -> None:
                 incident_id=incident.id if incident else None,
             )
             db.add(anomaly)
+            if severity in {"high", "critical"}:
+                send_webhook(
+                    message=f"Anomaly: {metric} {severity}",
+                    payload={"metric": metric, "severity": severity, "score": float(score)},
+                )
         db.commit()
     finally:
         db.close()

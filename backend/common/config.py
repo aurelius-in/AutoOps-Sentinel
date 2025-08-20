@@ -32,6 +32,9 @@ class Settings(BaseSettings):
         origins = [o.strip() for o in self.cors_origins.split(",") if o.strip()]
         return origins if origins else ["*"]
 
+    # Notifications
+    webhook_url: str | None = Field(default=os.getenv("WEBHOOK_URL"))
+
     class Config:
         env_file = ".env"
         extra = "ignore"
