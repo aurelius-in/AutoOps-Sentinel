@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { API_BASE } from '../modules/api';
 
 type CardProps = { title: string; value: string };
 
@@ -10,11 +11,20 @@ const Card: React.FC<CardProps> = ({ title, value }) => (
 );
 
 const StatusCards: React.FC = () => {
+  const [summary, setSummary] = useState<{anomalies:number; actions:number; incidents:number} | null>(null);
+  useEffect(() => {
+    const load = async () => {
+      try { const res = await fetch(`${API_BASE}/summary`); setSummary(await res.json()); } catch {}
+    };
+    load();
+    const id = setInterval(load, 5000);
+    return () => clearInterval(id);
+  }, []);
   return (
     <div style={{ display: 'flex', gap: 12 }}>
-      <Card title="CPU" value="OK" />
-      <Card title="Errors" value="OK" />
-      <Card title="Latency" value="OK" />
+      <Card title="Anomalies" value={String(summary?.anomalies ?? 0)} />
+      <Card title="Actions" value={String(summary?.actions ?? 0)} />
+      <Card title="Incidents" value={String(summary?.incidents ?? 0)} />
       <Card title="Cost Avoided" value="$0" />
     </div>
   );
