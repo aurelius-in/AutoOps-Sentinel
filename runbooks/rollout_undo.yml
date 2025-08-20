@@ -1,4 +1,5 @@
 name: rollout_undo
+requires_approval: true
 steps:
   - run: "echo kubectl rollout undo deployment/{deployment}"
   - verify: "echo kubectl rollout status deployment/{deployment}"
