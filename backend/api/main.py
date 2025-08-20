@@ -423,6 +423,20 @@ def list_actions(db: Session = Depends(get_db_session)) -> list[dict]:
     ]
 
 
+@app.get("/actions/{action_id}")
+def get_action(action_id: str, db: Session = Depends(get_db_session)) -> dict:
+    row = db.query(models.Action).filter(models.Action.id == action_id).first()
+    if not row:
+        return {"error": "not_found"}
+    return {
+        "id": str(row.id),
+        "name": row.name,
+        "success": row.success,
+        "created_at": row.created_at.isoformat(),
+        "result": row.result,
+    }
+
+
 @app.get("/export/anomalies.csv")
 def export_anomalies_csv(db: Session = Depends(get_db_session)) -> PlainTextResponse:
     rows = (
