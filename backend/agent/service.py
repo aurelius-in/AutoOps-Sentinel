@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Tuple
 
 from sqlalchemy.orm import Session
+from ..common.config import settings
 
 from ..common import models
 from ..policy.engine import evaluate_policies
@@ -61,6 +62,41 @@ class AgentService:
     def answer_question(self, db: Session, question: str) -> Tuple[str, str]:
         anomalies = self._recent_anomalies(db, 24 * 60)
         actions = self._recent_actions(db, 24 * 60)
+        # If OpenAI key present, try to craft a richer narrative
+        if settings.openai_api_key:
+            try:
+                import requests
+                context = {
+                    "recent_anomalies": [
+                        {"metric": a.metric, "severity": a.severity, "score": a.score, "at": a.created_at.isoformat()}
+                        for a in anomalies[:10]
+                    ],
+                    "recent_actions": [
+                        {"name": x.name, "success": x.success, "at": x.created_at.isoformat()}
+                        for x in actions[:10]
+                    ],
+                }
+                prompt = f"Question: {question}\nContext: {context}\nAnswer with an exec-friendly summary."
+                # Minimal OpenAI-compatible call (uses responses API style)
+                r = requests.post(
+                    "https://api.openai.com/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {settings.openai_api_key}", "Content-Type": "application/json"},
+                    json={
+                        "model": settings.model_name,
+                        "messages": [
+                            {"role": "system", "content": "You are an SRE assistant."},
+                            {"role": "user", "content": prompt},
+                        ],
+                        "temperature": 0.2,
+                    },
+                    timeout=15,
+                )
+                if r.ok:
+                    data = r.json()
+                    content = data["choices"][0]["message"]["content"]
+                    return content, "LLM-generated summary based on recent context."
+            except Exception:
+                pass
         if "what happened in the last hour" in question.lower():
             ans = f"Detected {len([a for a in anomalies if (datetime.utcnow() - a.created_at).total_seconds() <= 3600])} anomalies and executed {len([x for x in actions if (datetime.utcnow() - x.created_at).total_seconds() <= 3600])} actions."
             return ans, "Summarized counts from the last hour."
