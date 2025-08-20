@@ -11,6 +11,7 @@ import Policies from './components/Policies';
 import PlanPanel from './components/PlanPanel';
 import Narrative from './components/Narrative';
 import MetricsChart from './components/MetricsChart';
+import AnomalyStats from './components/AnomalyStats';
 
 const API = '/api';
 
@@ -55,6 +56,9 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <Timeline />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <AnomalyStats />
             </Paper>
           </Grid>
           <Grid item xs={12} md={4}>
