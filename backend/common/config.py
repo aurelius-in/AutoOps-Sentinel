@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     # Notifications
     webhook_url: str | None = Field(default=os.getenv("WEBHOOK_URL"))
 
+    # Policy auto-apply
+    auto_apply_policies: bool = Field(default=bool(int(os.getenv("AUTO_APPLY_POLICIES", "0"))))
+    policy_check_interval_seconds: int = Field(default=int(os.getenv("POLICY_CHECK_INTERVAL_SECONDS", "15")))
+
     class Config:
         env_file = ".env"
         extra = "ignore"
