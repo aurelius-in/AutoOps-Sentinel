@@ -251,6 +251,33 @@ def export_report_pdf(db: Session = Depends(get_db_session)):
     return StreamingResponse(buf, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=autoops-report.pdf"})
 
 
+@app.get("/metrics/keys")
+def metric_keys(db: Session = Depends(get_db_session)) -> list[str]:
+    q = (
+        db.query(models.Event)
+        .filter(models.Event.type == "metric")
+        .order_by(models.Event.created_at.desc())
+        .limit(2000)
+        .all()
+    )
+    keys: set[str] = set()
+    for e in q:
+        payload = e.payload or {}
+        m = payload.get("metric")
+        if isinstance(m, str):
+            keys.add(m)
+    return sorted(keys)
+
+
+@app.get("/metrics/recent")
+def recent_metric(metric: str = "cpu", minutes: int = 15, db: Session = Depends(get_db_session)) -> dict:
+    from ..detector.detector import _load_recent_metrics  # local import to avoid cycle
+
+    series = _load_recent_metrics(db, minutes=minutes)
+    points = [{"ts": ts.isoformat(), "value": v} for ts, v in series.get(metric, [])]
+    return {"metric": metric, "minutes": minutes, "points": points}
+
+
 @app.post("/metrics")
 def ingest_metric(metric: MetricIn, db: Session = Depends(get_db_session)) -> dict:
     event = models.Event(
