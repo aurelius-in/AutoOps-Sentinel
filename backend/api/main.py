@@ -84,6 +84,22 @@ async def on_startup() -> None:
 
     asyncio.create_task(cleanup_loop())
 
+    if settings.auto_apply_policies:
+        async def policy_loop():
+            while True:
+                try:
+                    db: Session = SessionLocal()
+                    suggestions = evaluate_policies(db)
+                    for s in suggestions:
+                        res = execute_runbook(s.get("action"), {"deployment": "myapp", "replicas": 2, "approved": True})
+                        db.add(models.Action(name=s.get("action"), input={}, result=res, success=bool(res.get("success"))))
+                    db.commit()
+                    db.close()
+                except Exception as exc:  # noqa: BLE001
+                    print(f"[policy] error: {exc}")
+                await asyncio.sleep(settings.policy_check_interval_seconds)
+        asyncio.create_task(policy_loop())
+
 
 @app.get("/health")
 def health() -> dict:
