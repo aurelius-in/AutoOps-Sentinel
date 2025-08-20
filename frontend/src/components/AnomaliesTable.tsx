@@ -7,7 +7,7 @@ const AnomaliesTable: React.FC = () => {
   const [rows, setRows] = useState<Anomaly[]>([]);
   useEffect(() => {
     const load = async () => {
-      const res = await fetch(`${API_BASE}/anomalies`);
+      const res = await fetch(`${API_BASE}/anomalies?limit=500`);
       setRows(await res.json());
     };
     load();
