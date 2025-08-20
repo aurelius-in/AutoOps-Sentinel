@@ -31,6 +31,7 @@ from ..remediator.executor import execute_runbook, list_runbooks
 from ..agent.service import AgentService
 from ..policy.engine import evaluate_policies, load_rules
 from ..common.ops import mitigate_incidents_for_action
+from .security import require_admin_token
 
 
 app = FastAPI(title=settings.app_name)
@@ -88,7 +89,7 @@ def list_policies() -> list[dict]:
     ]
 
 
-@app.post("/actions/auto")
+@app.post("/actions/auto", dependencies=[Depends(require_admin_token)])
 def auto_apply_actions(db: Session = Depends(get_db_session)) -> dict:
     suggestions = evaluate_policies(db)
     results = []
@@ -149,7 +150,7 @@ async def _simulate_mode(mode: str, seconds: int = 15) -> None:
         db.close()
 
 
-@app.post("/simulate/{mode}")
+@app.post("/simulate/{mode}", dependencies=[Depends(require_admin_token)])
 async def start_simulation(mode: str) -> dict:
     if mode not in {"cpu-spike", "error-storm", "login-attack"}:
         return {"status": "error", "message": "invalid mode"}
@@ -157,7 +158,7 @@ async def start_simulation(mode: str) -> dict:
     return {"status": "started", "mode": mode}
 
 
-@app.post("/demo/reset")
+@app.post("/demo/reset", dependencies=[Depends(require_admin_token)])
 def demo_reset(db: Session = Depends(get_db_session)) -> dict:
     # delete in order of dependencies
     db.query(models.Action).delete()
@@ -252,7 +253,7 @@ def get_anomalies(db: Session = Depends(get_db_session)) -> List[AnomalyOut]:
     ]
 
 
-@app.post("/actions/execute", response_model=ExecuteActionOut)
+@app.post("/actions/execute", response_model=ExecuteActionOut, dependencies=[Depends(require_admin_token)])
 def execute_action(payload: ExecuteActionIn, db: Session = Depends(get_db_session)) -> ExecuteActionOut:
     result = execute_runbook(payload.name, payload.params)
     # Persist action
