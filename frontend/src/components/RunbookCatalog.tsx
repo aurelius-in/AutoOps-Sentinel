@@ -34,6 +34,8 @@ const RunbookCatalog: React.FC = () => {
             <div style={{ fontSize: 12, color: '#666' }}>
               Success rate (last 50): {r.recent_success_rate != null ? `${Math.round(r.recent_success_rate * 100)}%` : 'n/a'}
               {r.last_success_at ? ` · Last success: ${new Date(r.last_success_at).toLocaleString()}` : ''}
+              {r.owner ? ` · Owner: ${r.owner}` : ''}
+              {r.service ? ` · Service: ${r.service}` : ''}
             </div>
             <div style={{ marginTop: 4 }}>
               <button onClick={() => exec(r.name, true)}>Run</button>

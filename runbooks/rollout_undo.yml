@@ -1,5 +1,7 @@
 name: rollout_undo
 requires_approval: true
+owner: release@company.com
+service: web
 steps:
   - run: "echo kubectl rollout undo deployment/{deployment}"
   - verify: "echo kubectl rollout status deployment/{deployment}"
