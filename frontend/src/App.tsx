@@ -9,6 +9,7 @@ import SimulatePanel from './components/SimulatePanel';
 import ReportButton from './components/ReportButton';
 import Policies from './components/Policies';
 import PlanPanel from './components/PlanPanel';
+import Narrative from './components/Narrative';
 
 const API = '/api';
 
@@ -67,6 +68,9 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <PlanPanel />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <Narrative />
             </Paper>
           </Grid>
         </Grid>

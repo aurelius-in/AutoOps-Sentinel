@@ -314,3 +314,9 @@ def agent_plan(payload: AgentPlanIn, db: Session = Depends(get_db_session)) -> A
     )
 
 
+@app.get("/agent/narrative")
+def agent_narrative(db: Session = Depends(get_db_session)) -> dict:
+    agent = AgentService()
+    return agent.narrative_summary(db)
+
+
