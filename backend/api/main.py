@@ -285,6 +285,47 @@ def export_report_pdf(db: Session = Depends(get_db_session)):
     return StreamingResponse(buf, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=autoops-report.pdf"})
 
 
+@app.get("/report/json")
+def export_report_json(db: Session = Depends(get_db_session)) -> dict:
+    s = summary(db)
+    b = business_summary(db)
+    recent_anomalies = [
+        {
+            "id": str(r.id),
+            "metric": r.metric,
+            "severity": r.severity,
+            "score": r.score,
+            "created_at": r.created_at.isoformat(),
+        }
+        for r in db.query(models.Anomaly).order_by(models.Anomaly.created_at.desc()).limit(50).all()
+    ]
+    recent_actions = [
+        {
+            "id": str(r.id),
+            "name": r.name,
+            "success": r.success,
+            "created_at": r.created_at.isoformat(),
+        }
+        for r in db.query(models.Action).order_by(models.Action.created_at.desc()).limit(50).all()
+    ]
+    incidents = [
+        {
+            "id": str(r.id),
+            "title": r.title,
+            "status": r.status,
+            "created_at": r.created_at.isoformat(),
+        }
+        for r in db.query(models.Incident).order_by(models.Incident.created_at.desc()).limit(50).all()
+    ]
+    return {
+        "summary": s,
+        "business": b,
+        "anomalies": recent_anomalies,
+        "actions": recent_actions,
+        "incidents": incidents,
+    }
+
+
 @app.get("/metrics/keys")
 def metric_keys(db: Session = Depends(get_db_session)) -> list[str]:
     q = (
