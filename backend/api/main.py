@@ -348,6 +348,24 @@ def get_anomalies(db: Session = Depends(get_db_session)) -> List[AnomalyOut]:
     ]
 
 
+@app.get("/anomalies/stats")
+def anomaly_stats(db: Session = Depends(get_db_session)) -> dict:
+    rows = (
+        db.query(models.Anomaly)
+        .order_by(models.Anomaly.created_at.desc())
+        .limit(1000)
+        .all()
+    )
+    stats: dict = {}
+    for r in rows:
+        metric = r.metric
+        sev = r.severity
+        stats.setdefault(metric, {"low": 0, "medium": 0, "high": 0, "critical": 0})
+        if sev in stats[metric]:
+            stats[metric][sev] += 1
+    return stats
+
+
 @app.post("/actions/execute", response_model=ExecuteActionOut, dependencies=[Depends(require_admin_token)])
 def execute_action(payload: ExecuteActionIn, db: Session = Depends(get_db_session)) -> ExecuteActionOut:
     result = execute_runbook(payload.name, payload.params)
