@@ -4,6 +4,7 @@ import { API_BASE } from '../modules/api';
 const ChatAgent: React.FC = () => {
   const [q, setQ] = useState('What happened in the last hour?');
   const [a, setA] = useState<string>('');
+  const [r, setR] = useState<string>('');
 
   const ask = async () => {
     const res = await fetch(`${API_BASE}/agent/query`, {
@@ -13,6 +14,7 @@ const ChatAgent: React.FC = () => {
     });
     const data = await res.json();
     setA(data.answer || '');
+    setR(data.reasoning || '');
   };
 
   return (
@@ -23,6 +25,7 @@ const ChatAgent: React.FC = () => {
         <button onClick={ask}>Ask</button>
       </div>
       {a && <p style={{ marginTop: 8 }}><b>Answer:</b> {a}</p>}
+      {r && <p style={{ marginTop: 4, color: '#666' }}><b>Reasoning:</b> {r}</p>}
     </div>
   );
 };
