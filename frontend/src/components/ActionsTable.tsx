@@ -8,7 +8,7 @@ const ActionsTable: React.FC = () => {
   const [selected, setSelected] = useState<any | null>(null);
   useEffect(() => {
     const load = async () => {
-      const res = await fetch(`${API_BASE}/actions`);
+      const res = await fetch(`${API_BASE}/actions?limit=500`);
       setRows(await res.json());
     };
     load();

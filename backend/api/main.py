@@ -392,13 +392,12 @@ def list_events(db: Session = Depends(get_db_session)) -> list[dict]:
 
 
 @app.get("/anomalies", response_model=List[AnomalyOut])
-def get_anomalies(db: Session = Depends(get_db_session)) -> List[AnomalyOut]:
-    rows = (
-        db.query(models.Anomaly)
-        .order_by(models.Anomaly.created_at.desc())
-        .limit(100)
-        .all()
-    )
+def get_anomalies(limit: int = 100, since_mins: int | None = None, db: Session = Depends(get_db_session)) -> List[AnomalyOut]:
+    q = db.query(models.Anomaly)
+    if since_mins:
+        cutoff = datetime.utcnow() - timedelta(minutes=since_mins)
+        q = q.filter(models.Anomaly.created_at >= cutoff)
+    rows = q.order_by(models.Anomaly.created_at.desc()).limit(max(1, min(limit, 1000))).all()
     return [
         AnomalyOut(
             id=str(r.id),
@@ -452,13 +451,12 @@ def execute_action(payload: ExecuteActionIn, db: Session = Depends(get_db_sessio
 
 
 @app.get("/actions")
-def list_actions(db: Session = Depends(get_db_session)) -> list[dict]:
-    rows = (
-        db.query(models.Action)
-        .order_by(models.Action.created_at.desc())
-        .limit(100)
-        .all()
-    )
+def list_actions(limit: int = 100, since_mins: int | None = None, db: Session = Depends(get_db_session)) -> list[dict]:
+    q = db.query(models.Action)
+    if since_mins:
+        cutoff = datetime.utcnow() - timedelta(minutes=since_mins)
+        q = q.filter(models.Action.created_at >= cutoff)
+    rows = q.order_by(models.Action.created_at.desc()).limit(max(1, min(limit, 1000))).all()
     return [
         {
             "id": str(r.id),
@@ -486,13 +484,12 @@ def get_action(action_id: str, db: Session = Depends(get_db_session)) -> dict:
 
 
 @app.get("/export/anomalies.csv")
-def export_anomalies_csv(db: Session = Depends(get_db_session)) -> PlainTextResponse:
-    rows = (
-        db.query(models.Anomaly)
-        .order_by(models.Anomaly.created_at.desc())
-        .limit(1000)
-        .all()
-    )
+def export_anomalies_csv(limit: int = 1000, since_mins: int | None = None, db: Session = Depends(get_db_session)) -> PlainTextResponse:
+    q = db.query(models.Anomaly)
+    if since_mins:
+        cutoff = datetime.utcnow() - timedelta(minutes=since_mins)
+        q = q.filter(models.Anomaly.created_at >= cutoff)
+    rows = q.order_by(models.Anomaly.created_at.desc()).limit(max(1, min(limit, 10000))).all()
     lines = ["id,metric,score,severity,created_at"]
     for r in rows:
         lines.append(f"{r.id},{r.metric},{r.score},{r.severity},{r.created_at.isoformat()}")
@@ -501,13 +498,12 @@ def export_anomalies_csv(db: Session = Depends(get_db_session)) -> PlainTextResp
 
 
 @app.get("/export/actions.csv")
-def export_actions_csv(db: Session = Depends(get_db_session)) -> PlainTextResponse:
-    rows = (
-        db.query(models.Action)
-        .order_by(models.Action.created_at.desc())
-        .limit(1000)
-        .all()
-    )
+def export_actions_csv(limit: int = 1000, since_mins: int | None = None, db: Session = Depends(get_db_session)) -> PlainTextResponse:
+    q = db.query(models.Action)
+    if since_mins:
+        cutoff = datetime.utcnow() - timedelta(minutes=since_mins)
+        q = q.filter(models.Action.created_at >= cutoff)
+    rows = q.order_by(models.Action.created_at.desc()).limit(max(1, min(limit, 10000))).all()
     lines = ["id,name,success,created_at"]
     for r in rows:
         lines.append(f"{r.id},{r.name},{int(bool(r.success))},{r.created_at.isoformat()}")
