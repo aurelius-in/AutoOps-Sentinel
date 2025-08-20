@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, JSON, String, Text, Boolean
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from .db import Base
@@ -14,7 +13,7 @@ from .db import Base
 class Event(Base):
     __tablename__ = "events"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     source = Column(String(128), nullable=False)
     type = Column(String(64), nullable=False)  # metric | log | security
     payload = Column(JSON, nullable=False)
@@ -24,19 +23,19 @@ class Event(Base):
 class Anomaly(Base):
     __tablename__ = "anomalies"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     metric = Column(String(64), nullable=False)  # cpu | mem | latency | error_rate
     score = Column(Float, nullable=False)
     severity = Column(String(16), nullable=False)  # low | medium | high | critical
     details = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=True)
+    incident_id = Column(String(36), ForeignKey("incidents.id"), nullable=True)
 
 
 class Runbook(Base):
     __tablename__ = "runbooks"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(128), nullable=False, unique=True)
     description = Column(Text, nullable=True)
     path = Column(String(256), nullable=False)  # relative path to YAML
@@ -47,9 +46,9 @@ class Runbook(Base):
 class Action(Base):
     __tablename__ = "actions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(128), nullable=False)
-    runbook_id = Column(UUID(as_uuid=True), ForeignKey("runbooks.id"), nullable=True)
+    runbook_id = Column(String(36), ForeignKey("runbooks.id"), nullable=True)
     input = Column(JSON, nullable=True)
     result = Column(JSON, nullable=True)
     success = Column(Boolean, default=False, nullable=False)
@@ -61,7 +60,7 @@ class Action(Base):
 class Incident(Base):
     __tablename__ = "incidents"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(256), nullable=False)
     status = Column(String(32), nullable=False, default="open")  # open | mitigated | closed
     impact_minutes = Column(Integer, nullable=True)

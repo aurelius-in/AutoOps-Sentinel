@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default=os.getenv(
             "DATABASE_URL",
-            "postgresql+psycopg2://autoops:autoops@localhost:5432/autoops",
+            "sqlite:///autoops.db",
         )
     )
 
