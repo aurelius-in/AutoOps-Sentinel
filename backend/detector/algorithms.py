@@ -35,3 +35,25 @@ def isolation_forest_score(values: List[float]) -> Optional[float]:
     return s if s >= 0.5 else None
 
 
+def mad_anomaly_score(values: List[float], last_k: int = 1, threshold: float = 3.5) -> Optional[float]:
+    if len(values) < 7:
+        return None
+    import math
+
+    baseline = values[:-last_k] if last_k > 0 else values
+    if len(baseline) < 5:
+        return None
+    # Median
+    sorted_vals = sorted(baseline)
+    mid = len(sorted_vals) // 2
+    median = (sorted_vals[mid] if len(sorted_vals) % 2 == 1 else (sorted_vals[mid - 1] + sorted_vals[mid]) / 2)
+    # MAD
+    abs_dev = [abs(v - median) for v in baseline]
+    abs_dev.sort()
+    mad = (abs_dev[mid] if len(abs_dev) % 2 == 1 else (abs_dev[mid - 1] + abs_dev[mid]) / 2) or 1e-6
+    last_value = values[-1]
+    # Modified z-score: 0.6745 * (x - median) / MAD
+    mz = 0.6745 * (last_value - median) / mad
+    return mz if abs(mz) >= threshold else None
+
+

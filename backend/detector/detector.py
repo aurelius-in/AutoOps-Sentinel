@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from ..common.db import SessionLocal
 from ..common import models
 from ..common.ops import create_incident_if_needed
-from .algorithms import rolling_zscore, isolation_forest_score
+from .algorithms import rolling_zscore, isolation_forest_score, mad_anomaly_score
 
 
 def _load_recent_metrics(db: Session, minutes: int = 15) -> Dict[str, List[Tuple[datetime, float]]]:
@@ -39,7 +39,10 @@ def _detect_score(values: List[float]) -> float | None:
     if iso is not None:
         return iso * 3.5  # scale to roughly align with z-score thresholds
     z = rolling_zscore(values)
-    return z
+    if z is not None:
+        return z
+    mad = mad_anomaly_score(values)
+    return mad
 
 
 def _severity_from_score(score: float) -> str:
@@ -84,7 +87,10 @@ async def run_detection_cycle() -> None:
                     "latest": values[-1],
                     "mean": mean(values[:-1]) if len(values) > 1 else values[-1],
                     "n": len(values),
-                    "method": "iforest" if isolation_forest_score(values) is not None else "rolling_zscore",
+                    "method": (
+                        "iforest" if isolation_forest_score(values) is not None
+                        else ("rolling_zscore" if rolling_zscore(values) is not None else "mad")
+                    ),
                 },
                 incident_id=incident.id if incident else None,
             )
