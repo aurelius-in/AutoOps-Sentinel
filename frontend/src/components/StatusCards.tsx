@@ -12,9 +12,16 @@ const Card: React.FC<CardProps> = ({ title, value }) => (
 
 const StatusCards: React.FC = () => {
   const [summary, setSummary] = useState<{anomalies:number; actions:number; incidents:number} | null>(null);
+  const [biz, setBiz] = useState<{downtime_avoided_min:number; cost_avoided:number} | null>(null);
   useEffect(() => {
     const load = async () => {
-      try { const res = await fetch(`${API_BASE}/summary`); setSummary(await res.json()); } catch {}
+      try {
+        const [s, b] = await Promise.all([
+          fetch(`${API_BASE}/summary`).then(r=>r.json()),
+          fetch(`${API_BASE}/business`).then(r=>r.json()),
+        ]);
+        setSummary(s); setBiz(b);
+      } catch {}
     };
     load();
     const id = setInterval(load, 5000);
@@ -25,7 +32,7 @@ const StatusCards: React.FC = () => {
       <Card title="Anomalies" value={String(summary?.anomalies ?? 0)} />
       <Card title="Actions" value={String(summary?.actions ?? 0)} />
       <Card title="Incidents" value={String(summary?.incidents ?? 0)} />
-      <Card title="Cost Avoided" value="$0" />
+      <Card title="Cost Avoided" value={`$${(biz?.cost_avoided ?? 0).toLocaleString()}`} />
     </div>
   );
 };
