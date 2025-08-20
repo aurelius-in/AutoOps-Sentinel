@@ -15,6 +15,7 @@ import AnomalyStats from './components/AnomalyStats';
 import BusinessTicker from './components/BusinessTicker';
 import AnomaliesTable from './components/AnomaliesTable';
 import ActionsTable from './components/ActionsTable';
+import ServicesCatalog from './components/ServicesCatalog';
 
 const API = '/api';
 
@@ -100,6 +101,9 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <Narrative />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <ServicesCatalog />
             </Paper>
           </Grid>
         </Grid>
