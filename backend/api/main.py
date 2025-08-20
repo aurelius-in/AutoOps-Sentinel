@@ -26,7 +26,7 @@ from ..common.schemas import (
 )
 from ..common.config import settings
 from ..detector.detector import run_detection_cycle
-from ..detector.forecast import simple_forecast
+from ..detector.forecast import simple_forecast, prophet_forecast
 from ..remediator.executor import execute_runbook, list_runbooks
 from ..agent.service import AgentService
 from ..policy.engine import evaluate_policies, load_rules
@@ -110,11 +110,13 @@ def auto_apply_actions(db: Session = Depends(get_db_session)) -> dict:
 
 
 @app.get("/forecast")
-def forecast(metric: str = "cpu", horizon: int = 12, db: Session = Depends(get_db_session)) -> dict:
+def forecast(metric: str = "cpu", horizon: int = 12, method: str = "naive", db: Session = Depends(get_db_session)) -> dict:
     from ..detector.detector import _load_recent_metrics  # local import to avoid cycle in uvicorn
 
     series = _load_recent_metrics(db)
     values = [v for _, v in series.get(metric, [])]
+    if method == "prophet":
+        return prophet_forecast(values, horizon=horizon)
     return simple_forecast(values, horizon=horizon)
 
 
