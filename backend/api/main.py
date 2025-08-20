@@ -88,6 +88,26 @@ def list_policies() -> list[dict]:
     ]
 
 
+@app.post("/actions/auto")
+def auto_apply_actions(db: Session = Depends(get_db_session)) -> dict:
+    suggestions = evaluate_policies(db)
+    results = []
+    for s in suggestions:
+        name = s.get("action")
+        params = {"deployment": "myapp", "replicas": 2, "approved": True}
+        res = execute_runbook(name, params)
+        action = models.Action(
+            name=name,
+            input=params,
+            result=res,
+            success=bool(res.get("success")),
+        )
+        db.add(action)
+        results.append({"name": name, "result": res, "action_id": None})
+    db.commit()
+    return {"applied": len(results), "results": results}
+
+
 @app.get("/forecast")
 def forecast(metric: str = "cpu", horizon: int = 12, db: Session = Depends(get_db_session)) -> dict:
     from ..detector.detector import _load_recent_metrics  # local import to avoid cycle in uvicorn
