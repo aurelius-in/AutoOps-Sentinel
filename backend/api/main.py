@@ -23,6 +23,7 @@ from ..common.schemas import (
 )
 from ..common.config import settings
 from ..detector.detector import run_detection_cycle
+from ..detector.forecast import simple_forecast
 from ..remediator.executor import execute_runbook, list_runbooks
 from ..agent.service import AgentService
 from ..policy.engine import evaluate_policies
@@ -73,6 +74,23 @@ def summary(db: Session = Depends(get_db_session)) -> dict:
 @app.get("/policies/suggest")
 def policy_suggestions(db: Session = Depends(get_db_session)) -> list[dict]:
     return evaluate_policies(db)
+
+
+@app.get("/forecast")
+def forecast(metric: str = "cpu", horizon: int = 12, db: Session = Depends(get_db_session)) -> dict:
+    from ..detector.detector import _load_recent_metrics  # local import to avoid cycle in uvicorn
+
+    series = _load_recent_metrics(db)
+    values = [v for _, v in series.get(metric, [])]
+    return simple_forecast(values, horizon=horizon)
+
+
+@app.get("/business")
+def business_summary(db: Session = Depends(get_db_session)) -> dict:
+    actions = db.query(models.Action).count()
+    downtime_avoided_min = actions * 5
+    cost_per_min = 1500  # illustrative
+    return {"downtime_avoided_min": downtime_avoided_min, "cost_avoided": downtime_avoided_min * cost_per_min}
 
 
 @app.post("/metrics")
