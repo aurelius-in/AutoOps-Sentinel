@@ -4,6 +4,7 @@ import { API_BASE } from '../modules/api';
 const Policies: React.FC = () => {
   const [rules, setRules] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [msg, setMsg] = useState('');
   useEffect(() => {
     const load = async () => {
       const [r, s] = await Promise.all([
@@ -14,9 +15,16 @@ const Policies: React.FC = () => {
     };
     load();
   }, []);
+  const autoApply = async () => {
+    setMsg('Applying suggestions...');
+    await fetch(`${API_BASE}/actions/auto`, { method: 'POST' });
+    setMsg('Applied');
+  };
   return (
     <div>
       <h3>Policies</h3>
+      <button onClick={autoApply}>Auto-apply suggestions</button>
+      {msg && <div style={{ marginTop: 4 }}>{msg}</div>}
       <div>
         <b>Rules</b>
         <ul>
