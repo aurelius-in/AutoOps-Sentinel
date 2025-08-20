@@ -116,6 +116,13 @@ def seed(db: Session, realistic: bool = True, also_influx: bool = True) -> None:
     db.add(act_scale)
     db.commit()
 
+    # synthetic logs (auth failures and 5xx traces) as events for realism
+    for _ in range(50):
+        db.add(models.Event(source="auth", type="log", payload={"level": "WARN", "msg": "failed login", "user": f"user{random.randint(1000,9999)}", "ip": f"192.168.1.{random.randint(2,254)}"}))
+    for _ in range(30):
+        db.add(models.Event(source="web", type="log", payload={"level": "ERROR", "msg": "HTTP 500", "path": "/api/checkout", "trace": "...stack..."}))
+    db.commit()
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Seed realistic demo data into the local datastore")

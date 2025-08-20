@@ -25,9 +25,11 @@ def list_runbooks() -> List[Dict[str, Any]]:
                 "path": str(p),
                 "steps": data.get("steps", []),
                 "requires_approval": bool(data.get("requires_approval", False)),
+                "owner": data.get("owner"),
+                "service": data.get("service"),
             })
         except Exception:  # noqa: BLE001
-            items.append({"name": p.stem, "path": str(p), "steps": [], "requires_approval": False})
+            items.append({"name": p.stem, "path": str(p), "steps": [], "requires_approval": False, "owner": None, "service": None})
     return items
 
 

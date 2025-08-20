@@ -1,4 +1,6 @@
 name: scale_deployment
+owner: sre@company.com
+service: web
 steps:
   - run: "echo kubectl scale deployment/{deployment} --replicas={replicas}"
   - verify: "echo kubectl get deploy {deployment} -o wide"

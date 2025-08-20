@@ -1,4 +1,6 @@
 name: restart_service
+owner: sre@company.com
+service: payments
 steps:
   - run: "echo restarting {service}"
   - verify: "echo health check for {service}"
