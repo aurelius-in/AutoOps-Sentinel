@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from ..common.db import SessionLocal
 from ..common import models
+from ..common.ops import create_incident_if_needed
 from .algorithms import rolling_zscore, isolation_forest_score
 
 
@@ -62,6 +63,7 @@ async def run_detection_cycle() -> None:
             score = _detect_score(values)
             if score is None:
                 continue
+            incident = create_incident_if_needed(db, metric, _severity_from_score(float(score)))
             anomaly = models.Anomaly(
                 metric=metric,
                 score=float(score),
@@ -72,6 +74,7 @@ async def run_detection_cycle() -> None:
                     "n": len(values),
                     "method": "iforest" if isolation_forest_score(values) is not None else "rolling_zscore",
                 },
+                incident_id=incident.id if incident else None,
             )
             db.add(anomaly)
         db.commit()

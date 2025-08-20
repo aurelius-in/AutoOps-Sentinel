@@ -30,6 +30,7 @@ from ..detector.forecast import simple_forecast
 from ..remediator.executor import execute_runbook, list_runbooks
 from ..agent.service import AgentService
 from ..policy.engine import evaluate_policies
+from ..common.ops import mitigate_incidents_for_action
 
 
 app = FastAPI(title=settings.app_name)
@@ -220,6 +221,7 @@ def execute_action(payload: ExecuteActionIn, db: Session = Depends(get_db_sessio
         success=bool(result.get("success")),
     )
     db.add(action)
+    mitigate_incidents_for_action(db, payload.name)
     db.commit()
     return ExecuteActionOut(
         success=bool(result.get("success")),
@@ -252,6 +254,25 @@ def list_actions(db: Session = Depends(get_db_session)) -> list[dict]:
 @app.get("/runbooks")
 def get_runbooks() -> list[dict]:
     return list_runbooks()
+
+
+@app.get("/incidents")
+def list_incidents(db: Session = Depends(get_db_session)) -> list[dict]:
+    rows = (
+        db.query(models.Incident)
+        .order_by(models.Incident.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [
+        {
+            "id": str(r.id),
+            "title": r.title,
+            "status": r.status,
+            "created_at": r.created_at.isoformat(),
+        }
+        for r in rows
+    ]
 
 
 @app.post("/agent/query", response_model=AgentQueryOut)
