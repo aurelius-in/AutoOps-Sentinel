@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from ..common.db import SessionLocal
 from ..common import models
+from .algorithms import rolling_zscore, isolation_forest_score
 
 
 def _load_recent_metrics(db: Session, minutes: int = 15) -> Dict[str, List[Tuple[datetime, float]]]:
@@ -31,17 +32,13 @@ def _load_recent_metrics(db: Session, minutes: int = 15) -> Dict[str, List[Tuple
     return series
 
 
-def _z_score_detect(values: List[float], last_k: int = 1, threshold: float = 3.0) -> float | None:
-    if len(values) < 5:
-        return None
-    baseline = values[:-last_k] if last_k > 0 else values
-    if len(baseline) < 3:
-        return None
-    mu = mean(baseline)
-    sigma = pstdev(baseline) or 1e-6
-    last_value = values[-1]
-    z = (last_value - mu) / sigma
-    return z if abs(z) >= threshold else None
+def _detect_score(values: List[float]) -> float | None:
+    # Try IsolationForest first
+    iso = isolation_forest_score(values)
+    if iso is not None:
+        return iso * 3.5  # scale to roughly align with z-score thresholds
+    z = rolling_zscore(values)
+    return z
 
 
 def _severity_from_score(score: float) -> str:
@@ -62,7 +59,7 @@ async def run_detection_cycle() -> None:
         series = _load_recent_metrics(db)
         for metric, points in series.items():
             values = [v for _, v in points]
-            score = _z_score_detect(values)
+            score = _detect_score(values)
             if score is None:
                 continue
             anomaly = models.Anomaly(
@@ -73,7 +70,7 @@ async def run_detection_cycle() -> None:
                     "latest": values[-1],
                     "mean": mean(values[:-1]) if len(values) > 1 else values[-1],
                     "n": len(values),
-                    "method": "rolling_zscore",
+                    "method": "iforest" if isolation_forest_score(values) is not None else "rolling_zscore",
                 },
             )
             db.add(anomaly)
