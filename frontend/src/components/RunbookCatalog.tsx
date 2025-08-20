@@ -27,11 +27,19 @@ const RunbookCatalog: React.FC = () => {
       <ul>
         {runbooks.map((r) => (
           <li key={r.name}>
-            <b>{r.name}</b> <small>({r.path})</small>
-            {r.requires_approval && <span style={{ marginLeft: 8, color: '#c00' }}>Requires approval</span>}
-            <button style={{ marginLeft: 8 }} onClick={() => exec(r.name, true)}>Run</button>
-            <button style={{ marginLeft: 8 }} onClick={() => fetch(`${API_BASE}/actions/execute`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ name: r.name, params: { deployment: 'myapp', replicas: 2, service: 'myapp', dry_run: true, approved: true } }) })}>Dry Run</button>
-            <button style={{ marginLeft: 8 }} onClick={() => doPreview(r.name)}>Preview</button>
+            <div>
+              <b>{r.name}</b> <small>({r.path})</small>
+              {r.requires_approval && <span style={{ marginLeft: 8, color: '#c00' }}>Requires approval</span>}
+            </div>
+            <div style={{ fontSize: 12, color: '#666' }}>
+              Success rate (last 50): {r.recent_success_rate != null ? `${Math.round(r.recent_success_rate * 100)}%` : 'n/a'}
+              {r.last_success_at ? ` · Last success: ${new Date(r.last_success_at).toLocaleString()}` : ''}
+            </div>
+            <div style={{ marginTop: 4 }}>
+              <button onClick={() => exec(r.name, true)}>Run</button>
+              <button style={{ marginLeft: 8 }} onClick={() => fetch(`${API_BASE}/actions/execute`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ name: r.name, params: { deployment: 'myapp', replicas: 2, service: 'myapp', dry_run: true, approved: true } }) })}>Dry Run</button>
+              <button style={{ marginLeft: 8 }} onClick={() => doPreview(r.name)}>Preview</button>
+            </div>
           </li>
         ))}
       {preview && (
