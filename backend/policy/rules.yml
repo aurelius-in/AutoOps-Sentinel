@@ -2,4 +2,6 @@
   action: "scale_deployment"
 - condition: "error_rate > 10%"
   action: "rollout_undo"
+- condition: "failed_logins > 20 for 5m"
+  action: "quarantine_host"
 

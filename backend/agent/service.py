@@ -48,6 +48,12 @@ class AgentService:
                     "action": "scale_deployment",
                     "params": {"deployment": context.get("deployment", "myapp"), "replicas": context.get("replicas", 2)},
                 })
+            elif a.metric == "failed_logins" and a.severity in {"high", "critical"}:
+                steps.append({
+                    "description": "Quarantine suspected compromised host due to login attack",
+                    "action": "quarantine_host",
+                    "params": {"host": context.get("host", "node-1")},
+                })
 
         # Add policy suggestions
         for s in suggestions:

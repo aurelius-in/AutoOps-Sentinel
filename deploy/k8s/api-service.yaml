@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: autoops-api
+spec:
+  selector:
+    app: autoops-api
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+
