@@ -5,6 +5,7 @@ type Action = { id: string; name: string; success: boolean; created_at: string }
 
 const ActionsTable: React.FC = () => {
   const [rows, setRows] = useState<Action[]>([]);
+  const [selected, setSelected] = useState<any | null>(null);
   useEffect(() => {
     const load = async () => {
       const res = await fetch(`${API_BASE}/actions`);
@@ -28,7 +29,7 @@ const ActionsTable: React.FC = () => {
           </thead>
           <tbody>
             {rows.map(r => (
-              <tr key={r.id}>
+              <tr key={r.id} onClick={async () => { const res = await fetch(`${API_BASE}/actions/${r.id}`); setSelected(await res.json()); }} style={{ cursor: 'pointer' }}>
                 <td style={{ padding: 6 }}>{new Date(r.created_at).toLocaleTimeString()}</td>
                 <td style={{ padding: 6 }}>{r.name}</td>
                 <td style={{ padding: 6, color: r.success ? '#388e3c' : '#b00020' }}>{r.success ? 'Success' : 'Failed'}</td>
@@ -40,6 +41,12 @@ const ActionsTable: React.FC = () => {
           </tbody>
         </table>
       </div>
+      {selected && (
+        <div style={{ marginTop: 8 }}>
+          <b>Action {selected.name}</b>
+          <pre style={{ whiteSpace: 'pre-wrap', background: '#f9f9f9', padding: 8 }}>{selected?.result?.logs || ''}</pre>
+        </div>
+      )}
     </div>
   );
 };
