@@ -106,6 +106,13 @@ def health() -> dict:
     return {"status": "ok", "time": datetime.utcnow().isoformat()}
 
 
+@app.get("/health/ready")
+def health_ready(db: Session = Depends(get_db_session)) -> dict:
+    # simple DB connectivity check
+    db.execute("SELECT 1")
+    return {"status": "ready"}
+
+
 @app.get("/summary")
 def summary(db: Session = Depends(get_db_session)) -> dict:
     anomalies = db.query(models.Anomaly).count()
