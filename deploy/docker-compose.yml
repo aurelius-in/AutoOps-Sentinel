@@ -24,6 +24,17 @@ services:
       - "8000:8000"
     command: uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload
 
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/frontend.Dockerfile
+    environment:
+      VITE_API: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+
 volumes:
   db_data: {}
 
