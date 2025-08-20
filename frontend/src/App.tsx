@@ -10,6 +10,7 @@ import ReportButton from './components/ReportButton';
 import Policies from './components/Policies';
 import PlanPanel from './components/PlanPanel';
 import Narrative from './components/Narrative';
+import MetricsChart from './components/MetricsChart';
 
 const API = '/api';
 
@@ -48,6 +49,9 @@ const App: React.FC = () => {
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <Forecast />
+            </Paper>
+            <Paper sx={{ p: 2, mt: 2 }}>
+              <MetricsChart />
             </Paper>
             <Paper sx={{ p: 2, mt: 2 }}>
               <Timeline />
