@@ -114,17 +114,17 @@ const Timeline: React.FC = () => {
   return (
     <div style={{ marginTop: 8 }}>
       <h3 style={{ marginTop: 0, marginBottom: 8, color: '#cbd5e1' }}>Timeline</h3>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, lineHeight: 1.2 }}>
         {collapsed.length === 0 ? (
           <li style={{ color: '#94a3b8' }}>No events yet.</li>
         ) : (
           collapsed.map(({ base, count }) => (
             <li key={`${base.type}-${base.id}`} style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0',
+              display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0',
               borderBottom: '1px solid rgba(148,163,184,0.08)'
             }}>
-              <span style={{ color: '#94a3b8', width: 60, fontVariantNumeric: 'tabular-nums' }}>{formatTime(base.when)}</span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ color: '#94a3b8', minWidth: 70, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{formatTime(base.when)}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 {renderIcon(base)}
                 <span style={{
                   fontWeight: 600,

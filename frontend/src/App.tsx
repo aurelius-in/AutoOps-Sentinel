@@ -123,21 +123,21 @@ const App: React.FC = () => {
           <Box sx={{ my: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={8}>
-                <Paper sx={{ p: 2, height: 220, overflow: 'auto' }}>
+                <Paper sx={{ p: 2, height: 200, overflow: 'auto' }}>
                   <Timeline />
                 </Paper>
-                <Paper sx={{ p: 2, mt: 2, height: 260, overflow: 'auto' }}>
+                <Paper sx={{ p: 2, mt: 2, height: 220, overflow: 'auto' }}>
                   <AnomaliesTable />
                 </Paper>
-                <Paper sx={{ p: 2, mt: 2, height: 260, overflow: 'auto' }}>
+                <Paper sx={{ p: 2, mt: 2, height: 220, overflow: 'auto' }}>
                   <ActionsTable />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2, height: 260, overflow: 'auto' }}>
+                <Paper sx={{ p: 2, height: 220, overflow: 'auto' }}>
                   <RunbookCatalog />
                 </Paper>
-                <Paper sx={{ p: 2, mt: 2, height: 220, overflow: 'auto' }}>
+                <Paper sx={{ p: 2, mt: 2, height: 200, overflow: 'auto' }}>
                   <Policies />
                 </Paper>
                 <Paper sx={{ p: 2, mt: 2 }}>
