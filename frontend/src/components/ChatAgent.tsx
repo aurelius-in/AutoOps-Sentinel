@@ -25,7 +25,7 @@ const ChatAgent: React.FC = () => {
         <button onClick={ask}>Ask</button>
       </div>
       {a && <p style={{ marginTop: 8 }}><b>Answer:</b> {a}</p>}
-      {r && <p style={{ marginTop: 4, color: '#666' }}><b>Reasoning:</b> {r}</p>}
+      {r && <p style={{ marginTop: 4, color: '#94a3b8' }}><b>Reasoning:</b> {r}</p>}
     </div>
   );
 };

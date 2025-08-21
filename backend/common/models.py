@@ -39,7 +39,7 @@ class Runbook(Base):
     name = Column(String(128), nullable=False, unique=True)
     description = Column(Text, nullable=True)
     path = Column(String(256), nullable=False)  # relative path to YAML
-    metadata = Column(JSON, nullable=True)
+    meta = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
@@ -64,7 +64,7 @@ class Incident(Base):
     title = Column(String(256), nullable=False)
     status = Column(String(32), nullable=False, default="open")  # open | mitigated | closed
     impact_minutes = Column(Integer, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    meta = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     anomalies = relationship("Anomaly", backref="incident")
