@@ -17,7 +17,7 @@ const ActionsTable: React.FC = () => {
   }, []);
   return (
     <div>
-      <h3>Recent Actions</h3>
+      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Recent Actions</h3>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>

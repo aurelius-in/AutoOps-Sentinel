@@ -20,6 +20,29 @@ const theme = createTheme({
     h6: { fontWeight: 700 },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          scrollbarColor: '#64748b #0b1020',
+          scrollbarWidth: 'thin',
+        },
+        '::-webkit-scrollbar': {
+          width: '10px',
+          height: '10px',
+        },
+        '::-webkit-scrollbar-track': {
+          background: '#0b1020',
+        },
+        '::-webkit-scrollbar-thumb': {
+          backgroundColor: '#475569',
+          borderRadius: '8px',
+          border: '2px solid #0b1020',
+        },
+        '::-webkit-scrollbar-thumb:hover': {
+          backgroundColor: '#64748b',
+        },
+      },
+    },
     MuiPaper: {
       defaultProps: { elevation: 3 },
       styleOverrides: {
