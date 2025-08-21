@@ -22,8 +22,8 @@ const RunbookCatalog: React.FC = () => {
     load();
   }, []);
   return (
-    <div style={{ marginTop: 16 }}>
-      <h3>Runbook Catalog</h3>
+    <div style={{ marginTop: 8 }}>
+      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Runbook Catalog</h3>
       <ul>
         {runbooks.map((r) => (
           <li key={r.name}>
@@ -37,17 +37,59 @@ const RunbookCatalog: React.FC = () => {
               {r.owner ? ` · Owner: ${r.owner}` : ''}
               {r.service ? ` · Service: ${r.service}` : ''}
             </div>
-            <div style={{ marginTop: 4 }}>
-              <button onClick={() => exec(r.name, true)}>Run</button>
-              <button style={{ marginLeft: 8 }} onClick={() => fetch(`${API_BASE}/actions/execute`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ name: r.name, params: { deployment: 'myapp', replicas: 2, service: 'myapp', dry_run: true, approved: true } }) })}>Dry Run</button>
-              <button style={{ marginLeft: 8 }} onClick={() => doPreview(r.name)}>Preview</button>
+            <div style={{ marginTop: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => exec(r.name, true)}
+                style={{
+                  borderRadius: 10,
+                  padding: '6px 12px',
+                  border: '1px solid rgba(148,163,184,0.25)',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+                  color: '#e5e7eb',
+                  fontWeight: 600,
+                  letterSpacing: 0.2,
+                  cursor: 'pointer'
+                }}
+              >
+                Run
+              </button>
+              <button
+                onClick={() => fetch(`${API_BASE}/actions/execute`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ name: r.name, params: { deployment: 'myapp', replicas: 2, service: 'myapp', dry_run: true, approved: true } }) })}
+                style={{
+                  borderRadius: 10,
+                  padding: '6px 12px',
+                  border: '1px solid rgba(148,163,184,0.25)',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+                  color: '#e5e7eb',
+                  fontWeight: 600,
+                  letterSpacing: 0.2,
+                  cursor: 'pointer'
+                }}
+              >
+                Dry Run
+              </button>
+              <button
+                onClick={() => doPreview(r.name)}
+                style={{
+                  borderRadius: 10,
+                  padding: '6px 12px',
+                  border: '1px solid rgba(148,163,184,0.25)',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+                  color: '#e5e7eb',
+                  fontWeight: 600,
+                  letterSpacing: 0.2,
+                  cursor: 'pointer'
+                }}
+              >
+                Preview
+              </button>
             </div>
           </li>
         ))}
       {preview && (
         <div style={{ marginTop: 8 }}>
           <b>Preview {preview.name}</b>
-          <pre style={{ whiteSpace: 'pre-wrap', background: '#f9f9f9', padding: 8 }}>{preview.commands.join('\n')}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap', background: '#0f172a', color: '#e5e7eb', padding: 8, borderRadius: 8 }}>{preview.commands.join('\n')}</pre>
         </div>
       )}
       </ul>

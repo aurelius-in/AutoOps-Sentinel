@@ -22,8 +22,17 @@ const Policies: React.FC = () => {
   };
   return (
     <div>
-      <h3>Policies</h3>
-      <button onClick={autoApply}>Auto-apply suggestions</button>
+      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Policies</h3>
+      <button onClick={autoApply} style={{
+        borderRadius: 10,
+        padding: '6px 12px',
+        border: '1px solid rgba(148,163,184,0.25)',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+        color: '#e5e7eb',
+        fontWeight: 600,
+        letterSpacing: 0.2,
+        cursor: 'pointer'
+      }}>Auto-apply suggestions</button>
       {msg && <div style={{ marginTop: 4 }}>{msg}</div>}
       <div>
         <b>Rules</b>
