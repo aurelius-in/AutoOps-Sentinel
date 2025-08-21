@@ -35,9 +35,9 @@ const RunbookCatalog: React.FC = () => {
   return (
     <div style={{ marginTop: 8 }}>
       <h3 style={{ marginTop: 0, marginBottom: 8 }}>Runbook Catalog</h3>
-      <ul>
+      <ul style={{ listStyle: 'none', paddingLeft: 0, margin: 0 }}>
         {runbooks.map((r) => (
-          <li key={r.name}>
+          <li key={r.name} style={{ padding: '6px 0 12px 0' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
               <b style={{ color: '#e5e7eb' }}>{toTitle(r.name)}</b>
               {r.service && (
@@ -113,6 +113,7 @@ const RunbookCatalog: React.FC = () => {
                 Preview
               </button>
             </div>
+            <div style={{ height: 8 }} />
           </li>
         ))}
       {preview && (
