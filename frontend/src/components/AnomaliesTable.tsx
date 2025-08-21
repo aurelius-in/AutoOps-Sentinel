@@ -16,7 +16,7 @@ const AnomaliesTable: React.FC = () => {
   }, []);
   return (
     <div>
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Recent Anomalies</h3>
+      <h3 style={{ marginTop: 0, marginBottom: 6, color: '#cbd5e1' }}>Anomalies</h3>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
