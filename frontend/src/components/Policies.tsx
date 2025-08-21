@@ -48,7 +48,6 @@ const Policies: React.FC = () => {
         </ul>
       </div>
       <div style={{ marginTop: 8 }}>
-        <b style={{ color: '#94a3b8' }}>Recommended actions</b>
         <ul style={{ paddingLeft: 16 }}>
           {suggestions.map((s, idx) => (
             <li key={idx}>

@@ -18,8 +18,8 @@ const ActionsTable: React.FC = () => {
   return (
     <div>
       <h3 style={{ marginTop: 0, marginBottom: 8, color: '#cbd5e1' }}>Recent Actions</h3>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 160 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#e5e7eb' }}>
           <thead>
             <tr>
               <th style={{ textAlign: 'left', padding: 6 }}>Time</th>

@@ -19,13 +19,12 @@ const SimulatePanel: React.FC = () => {
   }
   return (
     <div>
-      <h3 style={{ marginTop: 0, marginBottom: 8, color: '#cbd5e1' }}>Simulation</h3>
+      <h3 style={{ marginTop: 0, marginBottom: 8, color: '#cbd5e1' }}>Scenario Triggers</h3>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {[
           { label: 'Error Storm', onClick: () => trigger('error-storm') },
           { label: 'CPU Spike', onClick: () => trigger('cpu-spike') },
           { label: 'Login Attack', onClick: () => trigger('login-attack') },
-          { label: 'Run Wow Demo', onClick: wow },
           { label: 'Reset', onClick: reset },
         ].map((b) => (
           <button key={b.label} onClick={b.onClick} style={{
