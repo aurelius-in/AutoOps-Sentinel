@@ -18,6 +18,8 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://autoops:autoops@db:5432/autoops
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      API_TOKEN: devtoken
+      CORS_ORIGINS: http://localhost:5173
     depends_on:
       - db
     ports:

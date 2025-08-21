@@ -35,8 +35,16 @@ const BusinessTicker: React.FC = () => {
   }, [target]);
 
   return (
-    <div style={{ margin: '8px 0', padding: 8, background: '#f5faff', border: '1px solid #e3f2fd', borderRadius: 6 }}>
-      <b>Estimated cost avoided:</b> <span style={{ color: '#1a73e8', fontWeight: 700 }}>{formatUsd(display)}</span>
+    <div style={{
+      margin: '8px 0',
+      padding: 10,
+      borderRadius: 10,
+      background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))',
+      border: '1px solid rgba(148,163,184,0.15)'
+    }}>
+      <b style={{ color: '#94a3b8' }}>Estimated cost avoided:</b>
+      {' '}
+      <span style={{ color: '#eab308', fontWeight: 800 }}>{formatUsd(display)}</span>
     </div>
   );
 };

@@ -2,6 +2,8 @@
 
 Agentic AI-driven ops demo: ingest metrics, detect anomalies, plan actions, auto-remediate, and explain decisions.
 
+![AutoOps Sentinel Overview](./aostab1.gif)
+
 ## Quickstart
 
 Prereqs: Docker, Docker Compose.

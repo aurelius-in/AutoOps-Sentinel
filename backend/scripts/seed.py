@@ -8,7 +8,7 @@ from typing import Dict, List, Tuple
 
 from sqlalchemy.orm import Session
 
-from ..common.db import SessionLocal
+from ..common.db import SessionLocal, Base, engine
 from ..common import models
 from ..common.metrics_store import write_metric_influx
 
@@ -133,6 +133,11 @@ def main() -> None:
 
     db: Session = SessionLocal()
     try:
+        # Ensure tables exist for local seeding
+        try:
+            Base.metadata.create_all(bind=engine)
+        except Exception:
+            pass
         if args.reset:
             db.query(models.Action).delete()
             db.query(models.Anomaly).delete()
