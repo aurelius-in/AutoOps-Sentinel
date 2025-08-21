@@ -34,7 +34,7 @@ const RunbookCatalog: React.FC = () => {
   }, []);
   return (
     <div style={{ marginTop: 8 }}>
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Runbook Catalog</h3>
+      <h3 style={{ marginTop: 0, marginBottom: 8, color: '#cbd5e1' }}>Runbook Catalog</h3>
       <ul style={{ listStyle: 'none', paddingLeft: 0, margin: 0 }}>
         {runbooks.map((r) => (
           <li key={r.name} style={{ padding: '6px 0 12px 0' }}>

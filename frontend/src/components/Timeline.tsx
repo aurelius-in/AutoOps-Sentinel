@@ -113,7 +113,7 @@ const Timeline: React.FC = () => {
 
   return (
     <div style={{ marginTop: 8 }}>
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Timeline</h3>
+      <h3 style={{ marginTop: 0, marginBottom: 8, color: '#cbd5e1' }}>Timeline</h3>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {collapsed.length === 0 ? (
           <li style={{ color: '#94a3b8' }}>No events yet.</li>

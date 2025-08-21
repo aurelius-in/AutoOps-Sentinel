@@ -22,7 +22,7 @@ const Policies: React.FC = () => {
   };
   return (
     <div>
-      <h3 style={{ marginTop: 0, marginBottom: 8 }}>Policies</h3>
+      <h3 style={{ marginTop: 0, marginBottom: 8, color: '#cbd5e1' }}>Policies</h3>
       <button onClick={autoApply} style={{
         borderRadius: 10,
         padding: '6px 12px',
