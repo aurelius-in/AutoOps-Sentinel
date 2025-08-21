@@ -547,6 +547,21 @@ def runbook_preview(payload: dict) -> dict:
     return preview_runbook(name, params)
 
 
+@app.get("/services")
+def services_catalog() -> list[dict]:
+    items = list_runbooks()
+    # Derive simple service catalog from runbook metadata
+    svc_map: dict[str, dict] = {}
+    for rb in items:
+        svc = (rb.get("service") or "default").lower()
+        owner = rb.get("owner")
+        svc_map.setdefault(svc, {"service": svc, "owner": owner, "runbooks": []})
+        if owner and not svc_map[svc].get("owner"):
+            svc_map[svc]["owner"] = owner
+        svc_map[svc]["runbooks"].append(rb.get("name"))
+    return sorted(svc_map.values(), key=lambda x: x["service"]) 
+
+
 @app.get("/slo")
 def slo(target: float = 99.9, db: Session = Depends(get_db_session)) -> dict:
     from statistics import mean
