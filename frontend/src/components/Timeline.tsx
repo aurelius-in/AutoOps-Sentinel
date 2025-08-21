@@ -85,6 +85,32 @@ const Timeline: React.FC = () => {
     return out;
   }, [items]);
 
+  const renderIcon = (e: EventItem) => {
+    const color = e.type === 'anomaly' ? severityColor(e.severity) : typeColor(e.type, e.success);
+    if (e.type === 'anomaly') {
+      // Triangle alert icon
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-label="anomaly" role="img" style={{ display: 'block' }}>
+          <path fill={color} d="M12 5.5L2 20h20L12 5.5zm0 3L19.1 18H4.9L12 8.5zM11 10h2v5h-2v-5zm0 6h2v2h-2v-2z"/>
+        </svg>
+      );
+    }
+    if (e.type === 'action') {
+      // Bolt icon
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-label="action" role="img" style={{ display: 'block' }}>
+          <path fill={color} d="M13 3L4 14h6l-1 7 9-11h-6l1-7z"/>
+        </svg>
+      );
+    }
+    // incident: shield-exclamation
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-label="incident" role="img" style={{ display: 'block' }}>
+        <path fill={color} d="M12 2l7 3v6c0 5-3.8 9.7-7 11-3.2-1.3-7-6-7-11V5l7-3zm-1 6h2v6h-2V8zm0 8h2v2h-2v-2z"/>
+      </svg>
+    );
+  };
+
   return (
     <div style={{ marginTop: 8 }}>
       <h3 style={{ marginTop: 0, marginBottom: 8 }}>Timeline</h3>
@@ -99,10 +125,7 @@ const Timeline: React.FC = () => {
             }}>
               <span style={{ color: '#94a3b8', width: 60, fontVariantNumeric: 'tabular-nums' }}>{formatTime(base.when)}</span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <span style={{
-                  width: 8, height: 8, borderRadius: 9999,
-                  background: base.type === 'anomaly' ? severityColor(base.severity) : typeColor(base.type, base.success)
-                }} />
+                {renderIcon(base)}
                 <span style={{
                   fontWeight: 600,
                   color: '#e5e7eb'
